@@ -1,6 +1,6 @@
 {
-    "name": "ateeducacion/omeka-s-moduletemplate",
-    "description": "Module template for Omeka S",
+    "name": "ateeducacion/omeka-s-GlobalLandingPage",
+    "description": "Module for override Global Index Template for one in a theme for Omeka S",
     "type": "omeka-s-module",
     "license": "GPL-3.0-or-later",
     "authors": [
@@ -9,16 +9,15 @@
             "email": "ate.educacion@gobiernodecanarias.org"
         }
     ],
-    "homepage": "https://github.com/ateeducacion/omeka-s-ModuleTemplate",
+    "homepage": "https://github.com/ateeducacion/omeka-s-GlobalLandingPage",
     "support": {
-        "issues": "https://github.com/ateeducacion/omeka-s-ModuleTemplate/issues"
+        "issues": "https://github.com/ateeducacion/omeka-s-GlobalLandingPage/issues"
     },
     "keywords": [
         "Omeka S",
         "module",
-        "3D",
-        "three.js",
-        "model-viewer"
+        "Global Landing Page",
+        "theme"
     ],
     "require": {
         "php": ">=7.4"
@@ -41,12 +40,12 @@
     },
     "autoload": {
         "psr-4": {
-            "ModuleTemplate\\": "src/"
+            "GlobalLandingPage\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ModuleTemplateTest\\": "test/"
+            "GlobalLandingPageTest\\": "test/"
         }
     },
     "repositories": [
