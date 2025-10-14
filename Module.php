@@ -15,6 +15,7 @@ use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Settings\Settings;
 use Omeka\Stdlib\Message;
 use Throwable;
+use RuntimeException;
 
 /**
  * Module bootstrapper.
@@ -30,6 +31,8 @@ class Module extends AbstractModule
 
     public function onBootstrap(MvcEvent $event): void
     {
+        parent::onBootstrap($event);
+
         $services = $this->getServiceLocator();
         if (!$services || !$services->has('ViewTemplateMapResolver')) {
             return;
@@ -66,7 +69,7 @@ class Module extends AbstractModule
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $services = $this->getServiceLocator();
+        $services = $this->locateServices($renderer);
         /** @var Settings $settings */
         $settings = $services->get('Omeka\Settings');
 
@@ -85,7 +88,7 @@ class Module extends AbstractModule
 
     public function handleConfigForm(AbstractController $controller)
     {
-        $services = $this->getServiceLocator();
+        $services = $this->locateServices(null, $controller);
         /** @var Settings $settings */
         $settings = $services->get('Omeka\Settings');
 
@@ -400,5 +403,59 @@ class Module extends AbstractModule
         }
 
         return $themeId;
+    }
+
+    /**
+     * Retrieve the main service manager, falling back to context-specific sources.
+     */
+    private function locateServices(?PhpRenderer $renderer = null, ?AbstractController $controller = null): ServiceLocatorInterface
+    {
+        $services = $this->getServiceLocator();
+        if ($services instanceof ServiceLocatorInterface) {
+            return $services;
+        }
+
+        if ($renderer !== null) {
+            $helpers = $renderer->getHelperPluginManager();
+            if (method_exists($helpers, 'getServiceLocator')) {
+                $services = $helpers->getServiceLocator();
+                if ($services instanceof ServiceLocatorInterface) {
+                    $this->setServiceLocator($services);
+                    return $services;
+                }
+            }
+            if (method_exists($helpers, 'getServiceManager')) {
+                $services = $helpers->getServiceManager();
+                if ($services instanceof ServiceLocatorInterface) {
+                    $this->setServiceLocator($services);
+                    return $services;
+                }
+            }
+        }
+
+        if ($controller !== null) {
+            if (method_exists($controller, 'getServiceLocator')) {
+                $services = $controller->getServiceLocator();
+                if ($services instanceof ServiceLocatorInterface) {
+                    $this->setServiceLocator($services);
+                    return $services;
+                }
+            }
+            if (method_exists($controller, 'getEvent')) {
+                $event = $controller->getEvent();
+                if ($event && method_exists($event, 'getApplication')) {
+                    $application = $event->getApplication();
+                    if ($application && method_exists($application, 'getServiceManager')) {
+                        $services = $application->getServiceManager();
+                        if ($services instanceof ServiceLocatorInterface) {
+                            $this->setServiceLocator($services);
+                            return $services;
+                        }
+                    }
+                }
+            }
+        }
+
+        throw new RuntimeException('Unable to access the Omeka service locator.');
     }
 }
