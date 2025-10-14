@@ -1,70 +1,32 @@
-# Omeka S Module Template
+# GlobalLandingPage (Omeka S Module)
 
-![Screenshot of the module](https://raw.githubusercontent.com/ateeducacion/omeka-s-ModuleTemplate/refs/heads/main/.github/assets/screenshot.png)
+GlobalLandingPage allows administrators to override the Omeka S global landing page (`omeka/index/index`) with the `index.phtml` template provided by an installed theme. It adds a simple configuration screen where you can enable the override and choose an eligible theme.
 
-This repository provides a minimal, modern template for building custom modules for Omeka S. It includes a Docker-based dev environment, packaging helpers, i18n utilities, and a clean starting structure.
+## Features
+- Toggle the landing page override on or off at any time.
+- Automatically discover installed themes that include `view/omeka/index/index.phtml`.
+- Update the Laminas `template_map` to load the selected theme when the override is enabled.
+- Restore the default Omeka S behaviour whenever the override is disabled.
+- Compatible with Omeka S 4.x.
 
-## Quick Start (Docker)
+## Installation
+1. Copy the module directory into `modules/GlobalLandingPage` inside your Omeka S installation.
+2. From the Omeka S admin dashboard, go to *Modules* and install **GlobalLandingPage**.
+3. The module installs in a disabled state so Omeka S keeps its default landing page until you configure it.
 
-- Requirements: Docker Desktop 4+, Make
-- Start stack: `make up` then open `http://localhost:8080`
-- Stop stack: `make down`
+## Configuration
+1. Open *Modules → GlobalLandingPage → Configure*.
+2. Check **Enable landing page override** to activate the feature.
+3. Choose a theme from the dropdown. Only themes that expose `view/omeka/index/index.phtml` appear.
+4. Save the form. The selected theme renders the global landing page immediately.
 
-This template uses the image `erseco/alpine-omeka-s:develop`, which boots Omeka S with sensible defaults and tooling.
+If you disable the override, the module removes its template mapping to restore the core Omeka S layout.
 
-### Sample Data
+## Development Notes
+This repository includes optional helpers for Docker-based development, Composer tooling, and translation utilities inherited from the original template. The most relevant commands are:
 
-- A ready-to-use CSV lives at `data/sample_data.csv`.
-- On first boot, the container will automatically import it if present.
-- Import manually any time: `make import-sample`
+- `make up` / `make down` – start and stop the local Docker stack.
+- `make test` – run the PHPUnit suite in `test/`.
+- `make package VERSION=x.y.z` – build a distributable ZIP while preserving the original version in `config/module.ini`.
 
-Users created automatically:
-- `admin@example.com` (global_admin) password: `PLEASE_CHANGEME`
-- `editor@example.com` (editor) password: `1234`
-
-### Useful Make Targets
-
-- `make up` / `make upd`: Run in foreground/background
-- `make down` / `make clean`: Stop, optionally remove volumes
-- `make logs`: Tail container logs
-- `make shell`: Shell into the `omekas` container
-- `make import-sample`: Import the CSV at `$OMEKA_CSV_IMPORT_FILE`
-- `make enable-module`: Enable this module inside Omeka S
-- `make test`: Run PHPUnit tests
-- `make package VERSION=x.y.z`: Build a distributable ZIP
-
-Run `make help` to see all targets.
-
-## Project Structure
-
-```text
-ModuleTemplate/
-├── config/
-│   └── module.ini               # Module metadata
-├── src/
-│   └── Module.php               # Main module class (entry point)
-├── view/                        # Templates (optional)
-├── asset/                       # Static assets (JS, CSS, images)
-├── language/                    # Translations (.po/.mo)
-├── test/                        # Unit tests and bootstrap
-├── data/sample_3d_data.csv      # Optional sample dataset for CSVImport
-├── docker-compose.yml           # Dev stack using alpine-omeka-s:develop
-├── Makefile                     # Dev helpers (docker, i18n, tests, packaging)
-└── README.md                    # This file
-```
-
-## Customizing the Template
-
-- Rename namespaces in `composer.json` and under `src/` to your module’s name.
-- Update `config/module.ini` with your module’s metadata.
-- Adjust `docker-compose.yml` to mount your module directory name in `/var/www/html/volume/modules/<YourModule>`.
-
-## Requirements
-
-- Omeka S 4.x or later
-- PHP 7.4+ for development (module code can target higher, adjust `composer.json` accordingly)
-
-## License
-
-Published under the GNU GPLv3 license. See [LICENSE](LICENSE).
-
+Feel free to adapt or remove the development tooling to match your workflow.

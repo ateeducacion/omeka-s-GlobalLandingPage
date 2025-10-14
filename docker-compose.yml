@@ -41,7 +41,7 @@ services:
         # Create an Editor user if missing
         omeka-s-cli user:add "editor@example.com" "Editor" editor "1234" || true
 
-        # Enable the ModuleTemplate module from local source
+        # Enable the GlobalLandingPage module from local source
         omeka-s-cli module:install GlobalLandingPage || true
 
     volumes:

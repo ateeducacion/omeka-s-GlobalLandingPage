@@ -1,11 +1,11 @@
 {
-    "name": "ateeducacion/omeka-s-GlobalLandingPage",
-    "description": "Module for override Global Index Template for one in a theme for Omeka S",
+    "name": "ateeducacion/omeka-s-globallandingpage",
+    "description": "Override the Omeka S global index page with a template provided by an installed theme",
     "type": "omeka-s-module",
     "license": "GPL-3.0-or-later",
     "authors": [
         {
-            "name": "Área de Tecnología Educativa",
+            "name": "Area de Tecnologia Educativa",
             "email": "ate.educacion@gobiernodecanarias.org"
         }
     ],
@@ -16,8 +16,8 @@
     "keywords": [
         "Omeka S",
         "module",
-        "Global Landing Page",
-        "theme"
+        "landing page",
+        "theme override"
     ],
     "require": {
         "php": ">=7.4"
@@ -50,8 +50,8 @@
     },
     "repositories": [
         {
-        "type": "vcs",
-        "url": "https://github.com/zerocrates/extract-tagged-strings.git"
+            "type": "vcs",
+            "url": "https://github.com/zerocrates/extract-tagged-strings.git"
         }
     ]
 }

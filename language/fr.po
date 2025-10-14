@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: ModuleTemplate\n"
+"Project-Id-Version: GlobalLandingPage\n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Language: fr\n"
