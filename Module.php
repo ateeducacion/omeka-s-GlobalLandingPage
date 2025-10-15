@@ -160,15 +160,147 @@ class Module extends AbstractModule
             $templatePath = $themes[$selectedTheme]['template'];
             if (!is_file($templatePath)) {
                 $this->restoreOriginalTemplate($settings, $resolver);
+                $this->applyThemeContext($services, null);
                 return;
             }
 
             $this->storeOriginalTemplate($settings, $resolver);
             $this->setTemplatePath($resolver, $templatePath);
+            $this->applyThemeContext($services, $selectedTheme);
             return;
         }
 
+        $this->applyThemeContext($services, null);
         $this->restoreOriginalTemplate($settings, $resolver);
+    }
+
+    /**
+     * Ensure the theme manager points to the selected theme (or reset it).
+     */
+    private function applyThemeContext(ServiceLocatorInterface $services, ?string $themeId): void
+    {
+        if (!$services->has('Omeka\Site\ThemeManager')) {
+            return;
+        }
+
+        $themeManager = $services->get('Omeka\Site\ThemeManager');
+        if (!is_object($themeManager)) {
+            return;
+        }
+
+        if ($themeId === null || $themeId === '') {
+            $this->resetThemeManager($themeManager);
+            return;
+        }
+
+        $theme = $this->resolveThemeFromManager($themeManager, $themeId);
+        if ($theme === null) {
+            return;
+        }
+
+        $this->setThemeManagerTheme($themeManager, $theme, $themeId);
+    }
+
+    private function resolveThemeFromManager($themeManager, string $themeId)
+    {
+        if (method_exists($themeManager, 'getTheme')) {
+            try {
+                $theme = $themeManager->getTheme($themeId);
+                if ($theme) {
+                    return $theme;
+                }
+            } catch (Throwable $exception) {
+                // Ignore and attempt other strategies.
+            }
+        }
+
+        if (method_exists($themeManager, 'getThemes')) {
+            try {
+                foreach ($themeManager->getThemes() as $theme) {
+                    $currentId = $this->getThemeIdentifier($theme);
+                    if ($currentId === $themeId) {
+                        return $theme;
+                    }
+                }
+            } catch (Throwable $exception) {
+                // Ignore lookup failures.
+            }
+        }
+
+        return null;
+    }
+
+    private function setThemeManagerTheme($themeManager, $theme, string $themeId): void
+    {
+        $applied = false;
+
+        foreach (['setCurrentTheme', 'setTheme', 'setActiveTheme'] as $method) {
+            if (!method_exists($themeManager, $method)) {
+                continue;
+            }
+            try {
+                $themeManager->{$method}($theme);
+                $applied = true;
+                break;
+            } catch (Throwable $exception) {
+                // Retry with slug below.
+            }
+        }
+
+        if (!$applied) {
+            foreach (['setCurrentTheme', 'setTheme', 'setActiveTheme'] as $method) {
+                if (!method_exists($themeManager, $method)) {
+                    continue;
+                }
+                try {
+                    $themeManager->{$method}($themeId);
+                    $applied = true;
+                    break;
+                } catch (Throwable $exception) {
+                    // Continue trying other methods.
+                }
+            }
+        }
+
+        if ($applied && method_exists($themeManager, 'setDefaultTheme')) {
+            try {
+                $themeManager->setDefaultTheme($theme);
+                $applied = true;
+            } catch (Throwable $exception) {
+                try {
+                    $themeManager->setDefaultTheme($themeId);
+                } catch (Throwable $exception) {
+                    // Ignore inability to set default.
+                }
+            }
+        }
+    }
+
+    private function resetThemeManager($themeManager): void
+    {
+        foreach (['clearCurrentTheme', 'resetCurrentTheme'] as $method) {
+            if (!method_exists($themeManager, $method)) {
+                continue;
+            }
+            try {
+                $themeManager->{$method}();
+                return;
+            } catch (Throwable $exception) {
+                // try next option.
+            }
+        }
+
+        foreach (['setCurrentTheme', 'setTheme', 'setActiveTheme'] as $method) {
+            if (!method_exists($themeManager, $method)) {
+                continue;
+            }
+            try {
+                $themeManager->{$method}(null);
+                return;
+            } catch (Throwable $exception) {
+                // Ignore failure.
+            }
+        }
     }
 
     /**
