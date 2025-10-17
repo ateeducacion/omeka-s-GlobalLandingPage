@@ -1,0 +1,63 @@
+<?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ * @var string|null $headline
+ * @var string|null $lead
+ * @var string|null $primaryActionLabel
+ * @var string|null $primaryActionUrl
+ */
+
+$this->headLink()->appendStylesheet($this->assetUrl('css/landing.css', 'GlobalLandingPage'));
+
+$headline = $this->headline ?? $this->translate('Welcome to Omeka S'); // @translate
+$lead = $this->lead ?? $this->translate('Tell your visitors what makes your collections unique with a tailored landing page.'); // @translate
+$primaryActionLabel = $this->primaryActionLabel ?? $this->translate('Browse Collections'); // @translate
+$primaryActionUrl = $this->primaryActionUrl ?? '#collections';
+?>
+
+<div class="global-landing">
+    <?php echo $this->partial('global-landing-page/common/header'); ?>
+
+    <main id="main-content" class="global-landing__main">
+        <section class="hero" id="collections">
+            <div class="hero__copy">
+                <h1><?php echo $this->escapeHtml($headline); ?></h1>
+                <p><?php echo $this->escapeHtml($lead); ?></p>
+                <a class="hero__cta" href="<?php echo $this->escapeHtmlAttr($primaryActionUrl); ?>">
+                    <?php echo $this->escapeHtml($primaryActionLabel); ?>
+                </a>
+            </div>
+        </section>
+
+        <section class="feature-grid">
+            <article class="feature-card">
+                <h2><?php echo $this->translate('Curated Exhibits'); ?></h2>
+                <p><?php echo $this->translate('Introduce highlighted exhibits or thematic tours that connect visitors with your best stories.'); ?></p>
+            </article>
+            <article class="feature-card">
+                <h2><?php echo $this->translate('Powerful Search'); ?></h2>
+                <p><?php echo $this->translate('Offer quick access to assets with the global Omeka search widget or embed a custom search form.'); ?></p>
+            </article>
+            <article class="feature-card">
+                <h2><?php echo $this->translate('Reusable Blocks'); ?></h2>
+                <p><?php echo $this->translate('Build your hero, calls to action, and feature highlights entirely within this module.'); ?></p>
+            </article>
+        </section>
+
+        <section class="about" id="about">
+            <h2><?php echo $this->translate('About This Archive'); ?></h2>
+            <p><?php echo $this->translate('Share your mission, provenance, or curatorial vision to give visitors immediate context.'); ?></p>
+        </section>
+
+        <section class="contact" id="contact">
+            <h2><?php echo $this->translate('Stay Connected'); ?></h2>
+            <p><?php echo $this->translate('Provide an email address, social media links, or a dedicated contact form to keep the conversation going.'); ?></p>
+            <ul class="contact-links">
+                <li><a href="mailto:info@example.org">info@example.org</a></li>
+                <li><a href="#"><?php echo $this->translate('Follow on social media'); ?></a></li>
+            </ul>
+        </section>
+    </main>
+
+    <?php echo $this->partial('global-landing-page/common/footer'); ?>
+</div>

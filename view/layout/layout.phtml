@@ -1,0 +1,36 @@
+<?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ */
+
+$this->doctype(\Laminas\View\Helper\Doctype::HTML5);
+$translate = $this->plugin('translate');
+$translator = method_exists($translate, 'getTranslator') ? $translate->getTranslator() : null;
+$lang = 'en';
+if ($translator && method_exists($translator, 'getLocale')) {
+    $lang = (string) $translator->getLocale();
+} elseif (class_exists(\Locale::class)) {
+    $lang = (string) \Locale::getDefault();
+}
+$this->headTitle($this->translate('Global Landing Page')); // @translate
+?>
+<?= $this->doctype(); ?>
+<html lang="<?= $this->escapeHtmlAttr($lang); ?>">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?= $this->headTitle(); ?>
+    <?= $this->headMeta(); ?>
+    <?= $this->headLink(); ?>
+    <?= $this->headScript(); ?>
+</head>
+<body class="global-landing__body">
+    <a href="#main-content" class="skip-link">
+        <?= $this->translate('Skip to main content'); ?>
+    </a>
+
+    <?= $this->content; ?>
+
+    <?= $this->inlineScript(); ?>
+</body>
+</html>

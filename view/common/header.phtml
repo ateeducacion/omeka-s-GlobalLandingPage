@@ -1,0 +1,25 @@
+<?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ */
+?>
+<header class="global-landing__header">
+    <div class="global-landing__header-inner">
+        <div class="branding">
+            <span class="branding__title">
+                <?php echo $this->translate('Global Landing Page'); ?>
+            </span>
+            <span class="branding__subtitle">
+                <?php echo $this->translate('A self-contained welcome experience for Omeka S.'); ?>
+            </span>
+        </div>
+        <nav class="global-landing__nav" aria-label="<?php echo $this->translate('Landing page sections'); ?>">
+            <ul>
+                <li><a href="#main-content"><?php echo $this->translate('Home'); ?></a></li>
+                <li><a href="#collections"><?php echo $this->translate('Collections'); ?></a></li>
+                <li><a href="#about"><?php echo $this->translate('About'); ?></a></li>
+                <li><a href="#contact"><?php echo $this->translate('Contact'); ?></a></li>
+            </ul>
+        </nav>
+    </div>
+</header>

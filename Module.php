@@ -3,591 +3,315 @@ declare(strict_types=1);
 
 namespace GlobalLandingPage;
 
-use DirectoryIterator;
 use GlobalLandingPage\Form\ConfigForm;
+use Laminas\Form\FormInterface;
+use Laminas\Http\Request as HttpRequest;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Laminas\View\Resolver\TemplateMapResolver;
+use Laminas\View\Resolver\TemplatePathStack;
 use Omeka\Module\AbstractModule;
-use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Settings\Settings;
 use Omeka\Stdlib\Message;
-use Throwable;
-use RuntimeException;
 
-/**
- * Module bootstrapper.
- */
 class Module extends AbstractModule
 {
-    private const TEMPLATE_NAME = 'omeka/index/index';
+    private const SETTING_USE_CUSTOM = 'globallandingpage_use_custom';
+    private const TEMPLATE_ALIAS = 'omeka/index/index';
+    private const TEMPLATE_PATH = __DIR__ . '/view/omeka/index/index.phtml';
 
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
     }
 
-    public function onBootstrap(MvcEvent $event): void
-    {
-        parent::onBootstrap($event);
-
-        $services = $this->getServiceLocator();
-        if (!$services || !$services->has('ViewTemplateMapResolver')) {
-            return;
-        }
-
-        $this->applyTemplateOverride($services);
-    }
-
     public function install(ServiceLocatorInterface $serviceLocator)
     {
         /** @var Settings $settings */
         $settings = $serviceLocator->get('Omeka\Settings');
-        $settings->set('globallandingpage_override_enabled', false);
-        $settings->set('globallandingpage_theme', '');
-        $settings->delete('globallandingpage_original_template');
+        $settings->set(self::SETTING_USE_CUSTOM, false);
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
-        if (!$serviceLocator->has('Omeka\Settings') || !$serviceLocator->has('ViewTemplateMapResolver')) {
+        if (!$serviceLocator->has('Omeka\Settings')) {
             return;
         }
 
         /** @var Settings $settings */
         $settings = $serviceLocator->get('Omeka\Settings');
-        /** @var TemplateMapResolver $resolver */
-        $resolver = $serviceLocator->get('ViewTemplateMapResolver');
+        $settings->delete(self::SETTING_USE_CUSTOM);
+    }
 
-        $this->restoreOriginalTemplate($settings, $resolver);
-        $settings->delete('globallandingpage_override_enabled');
-        $settings->delete('globallandingpage_theme');
-        $settings->delete('globallandingpage_original_template');
+    public function onBootstrap(MvcEvent $event): void
+    {
+        parent::onBootstrap($event);
+
+        $application = $event->getApplication();
+        $services = $application->getServiceManager();
+
+        if (!$services->has('Omeka\Settings')) {
+            return;
+        }
+
+        /** @var Settings $settings */
+        $settings = $services->get('Omeka\Settings');
+        $enabled = (bool) $settings->get(self::SETTING_USE_CUSTOM, false);
+
+        $resolver = $services->has('ViewTemplateMapResolver')
+            ? $services->get('ViewTemplateMapResolver')
+            : null;
+        $this->configureTemplateOverride($resolver, $enabled);
+        $templatePathStack = $services->has('ViewTemplatePathStack')
+            ? $services->get('ViewTemplatePathStack')
+            : null;
+        $this->configureTemplatePathStack($templatePathStack, $enabled);
+
+        if (!$enabled) {
+            return;
+        }
+
+        $eventManager = $application->getEventManager();
+        $eventManager->attach(
+            MvcEvent::EVENT_ROUTE,
+            function (MvcEvent $routeEvent): void {
+                $request = $routeEvent->getRequest();
+                if (!$request instanceof HttpRequest) {
+                    return;
+                }
+
+                $path = (string) $request->getUri()->getPath();
+                if ($path !== '/' && $path !== '') {
+                    return;
+                }
+
+                $routeMatch = $routeEvent->getRouteMatch();
+                if ($routeMatch === null) {
+                    return;
+                }
+
+                $controllerParam = (string) $routeMatch->getParam('controller', '');
+                $actionParam = (string) $routeMatch->getParam('action', '');
+                $normalizedController = ltrim($controllerParam, '\\');
+
+                $isDefaultController = $normalizedController === 'Omeka\Controller\Index'
+                    || $normalizedController === 'Omeka\Controller\IndexController';
+
+                if (!$isDefaultController || $actionParam !== 'index') {
+                    return;
+                }
+
+                $routeMatch->setMatchedRouteName('globallandingpage');
+                $routeMatch->setParam('controller', Controller\LandingController::class);
+                $routeMatch->setParam('action', 'index');
+                $routeMatch->setParam('__NAMESPACE__', __NAMESPACE__ . '\Controller');
+                $routeMatch->setParam('module', __NAMESPACE__);
+                $routeMatch->setParam('__CONTROLLER__', 'landing');
+                $routeMatch->setParam('globallandingpage_active', true);
+
+                $routeEvent->stopPropagation(true);
+            },
+            1000
+        );
     }
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $services = $this->locateServices($renderer);
+        $services = $this->getServiceLocator();
         /** @var Settings $settings */
         $settings = $services->get('Omeka\Settings');
 
-        $themes = $this->getAvailableThemesWithTemplate($services);
-
         $form = new ConfigForm();
         $form->init();
-        $form->setThemeOptions($this->formatThemeOptions($themes));
         $form->setData([
-            'globallandingpage_override_enabled' => $settings->get('globallandingpage_override_enabled', false) ? '1' : '0',
-            'globallandingpage_theme' => $settings->get('globallandingpage_theme', ''),
+            self::SETTING_USE_CUSTOM => $settings->get(self::SETTING_USE_CUSTOM, false) ? '1' : '0',
         ]);
 
-        return $renderer->formCollection($form, false);
+        return $renderer->render('global-landing-page/config-form', [
+            'form' => $form,
+        ]);
     }
 
     public function handleConfigForm(AbstractController $controller)
     {
-        $services = $this->locateServices(null, $controller);
+        $services = $this->getServiceLocator();
         /** @var Settings $settings */
         $settings = $services->get('Omeka\Settings');
 
-        $data = $controller->params()->fromPost();
-        $enabled = !empty($data['globallandingpage_override_enabled'])
-            && (string)$data['globallandingpage_override_enabled'] === '1';
-        $selectedTheme = isset($data['globallandingpage_theme'])
-            ? (string)$data['globallandingpage_theme']
-            : '';
+        $form = new ConfigForm();
+        $form->init();
+        $form->setData($controller->params()->fromPost());
 
-        $themes = $this->getAvailableThemesWithTemplate($services);
-        $messenger = new Messenger();
-
-        if ($enabled && ($selectedTheme === '' || !isset($themes[$selectedTheme]))) {
-            $messenger->addError(new Message('Select a theme that supplies view/omeka/index/index.phtml before enabling the override.'));
+        if (!$form->isValid()) {
+            $controller->messenger()->addError(new Message('Unable to save settings: submitted data is invalid.')); // @translate
             return false;
         }
 
-        if ($selectedTheme !== '' && !isset($themes[$selectedTheme])) {
-            $selectedTheme = '';
-            $enabled = false;
-            $messenger->addWarning(new Message('The selected theme no longer provides view/omeka/index/index.phtml. Override disabled.'));
+        $useCustom = false;
+        $data = $form->getData(FormInterface::VALUES_AS_ARRAY);
+
+        if (isset($data[self::SETTING_USE_CUSTOM])) {
+            $value = $data[self::SETTING_USE_CUSTOM];
+            if (is_array($value)) {
+                $value = array_pop($value);
+            }
+            $useCustom = (string) $value === '1';
         }
 
-        $settings->set('globallandingpage_override_enabled', $enabled);
-        $settings->set('globallandingpage_theme', $selectedTheme);
+        $settings->set(self::SETTING_USE_CUSTOM, $useCustom);
 
-        $this->applyTemplateOverride($services);
+        $resolver = $services->has('ViewTemplateMapResolver')
+            ? $services->get('ViewTemplateMapResolver')
+            : null;
+        $this->configureTemplateOverride($resolver, $useCustom);
+        $templatePathStack = $services->has('ViewTemplatePathStack')
+            ? $services->get('ViewTemplatePathStack')
+            : null;
+        $this->configureTemplatePathStack($templatePathStack, $useCustom);
 
-        $messenger->addSuccess(new Message('Global landing page configuration saved.'));
+        $controller->messenger()->addSuccess(new Message('Global landing page settings saved.')); // @translate
+
         return true;
     }
 
     /**
-     * Build the select options with theme labels.
+     * Ensure the index template map reflects the current override state.
      *
-     * @param array<string, array{label: string, template: string}> $themes
-     * @return array<string, string>
+     * @param object|null $resolver
      */
-    private function formatThemeOptions(array $themes): array
+    private function configureTemplateOverride($resolver, bool $enabled): void
     {
-        $options = [];
-        foreach ($themes as $id => $data) {
-            $label = $data['label'];
-            if ($label !== $id) {
-                $label = sprintf('%s (%s)', $label, $id);
-            }
-            $options[$id] = $label;
-        }
-
-        return $options;
-    }
-
-    /**
-     * Apply the template override based on current settings.
-     */
-    private function applyTemplateOverride(ServiceLocatorInterface $services): void
-    {
-        /** @var Settings $settings */
-        $settings = $services->get('Omeka\Settings');
-        /** @var TemplateMapResolver $resolver */
-        $resolver = $services->get('ViewTemplateMapResolver');
-
-        $enabled = (bool)$settings->get('globallandingpage_override_enabled', false);
-        $selectedTheme = (string)$settings->get('globallandingpage_theme', '');
-        $themes = $this->getAvailableThemesWithTemplate($services);
-
-        if ($enabled && $selectedTheme !== '' && isset($themes[$selectedTheme])) {
-            $templatePath = $themes[$selectedTheme]['template'];
-            if (!is_file($templatePath)) {
-                $this->restoreOriginalTemplate($settings, $resolver);
-                $this->applyThemeContext($services, null);
-                return;
-            }
-
-            $this->storeOriginalTemplate($settings, $resolver);
-            $this->setTemplatePath($resolver, $templatePath);
-            $this->applyThemeContext($services, $selectedTheme);
+        if (!$resolver instanceof TemplateMapResolver) {
             return;
         }
 
-        $this->applyThemeContext($services, null);
-        $this->restoreOriginalTemplate($settings, $resolver);
-    }
-
-    /**
-     * Ensure the theme manager points to the selected theme (or reset it).
-     */
-    private function applyThemeContext(ServiceLocatorInterface $services, ?string $themeId): void
-    {
-        if (!$services->has('Omeka\Site\ThemeManager')) {
-            return;
+        $map = $resolver->getMap();
+        if (!is_array($map)) {
+            $map = [];
         }
 
-        $themeManager = $services->get('Omeka\Site\ThemeManager');
-        if (!is_object($themeManager)) {
-            return;
-        }
-
-        if ($themeId === null || $themeId === '') {
-            $this->resetThemeManager($themeManager);
-            return;
-        }
-
-        $theme = $this->resolveThemeFromManager($themeManager, $themeId);
-        if ($theme === null) {
-            return;
-        }
-
-        $this->setThemeManagerTheme($themeManager, $theme, $themeId);
-    }
-
-    private function resolveThemeFromManager($themeManager, string $themeId)
-    {
-        if (method_exists($themeManager, 'getTheme')) {
-            try {
-                $theme = $themeManager->getTheme($themeId);
-                if ($theme) {
-                    return $theme;
-                }
-            } catch (Throwable $exception) {
-                // Ignore and attempt other strategies.
+        if ($enabled) {
+            $map[self::TEMPLATE_ALIAS] = self::TEMPLATE_PATH;
+        } elseif (isset($map[self::TEMPLATE_ALIAS])) {
+            $currentPath = $map[self::TEMPLATE_ALIAS];
+            if (is_string($currentPath) && realpath($currentPath) === realpath(self::TEMPLATE_PATH)) {
+                unset($map[self::TEMPLATE_ALIAS]);
             }
         }
 
-        if (method_exists($themeManager, 'getThemes')) {
-            try {
-                foreach ($themeManager->getThemes() as $theme) {
-                    $currentId = $this->getThemeIdentifier($theme);
-                    if ($currentId === $themeId) {
-                        return $theme;
-                    }
-                }
-            } catch (Throwable $exception) {
-                // Ignore lookup failures.
-            }
-        }
-
-        return null;
-    }
-
-    private function setThemeManagerTheme($themeManager, $theme, string $themeId): void
-    {
-        $applied = false;
-
-        foreach (['setCurrentTheme', 'setTheme', 'setActiveTheme'] as $method) {
-            if (!method_exists($themeManager, $method)) {
-                continue;
-            }
-            try {
-                $themeManager->{$method}($theme);
-                $applied = true;
-                break;
-            } catch (Throwable $exception) {
-                // Retry with slug below.
-            }
-        }
-
-        if (!$applied) {
-            foreach (['setCurrentTheme', 'setTheme', 'setActiveTheme'] as $method) {
-                if (!method_exists($themeManager, $method)) {
-                    continue;
-                }
-                try {
-                    $themeManager->{$method}($themeId);
-                    $applied = true;
-                    break;
-                } catch (Throwable $exception) {
-                    // Continue trying other methods.
-                }
-            }
-        }
-
-        if ($applied && method_exists($themeManager, 'setDefaultTheme')) {
-            try {
-                $themeManager->setDefaultTheme($theme);
-                $applied = true;
-            } catch (Throwable $exception) {
-                try {
-                    $themeManager->setDefaultTheme($themeId);
-                } catch (Throwable $exception) {
-                    // Ignore inability to set default.
-                }
-            }
-        }
-    }
-
-    private function resetThemeManager($themeManager): void
-    {
-        foreach (['clearCurrentTheme', 'resetCurrentTheme'] as $method) {
-            if (!method_exists($themeManager, $method)) {
-                continue;
-            }
-            try {
-                $themeManager->{$method}();
-                return;
-            } catch (Throwable $exception) {
-                // try next option.
-            }
-        }
-
-        foreach (['setCurrentTheme', 'setTheme', 'setActiveTheme'] as $method) {
-            if (!method_exists($themeManager, $method)) {
-                continue;
-            }
-            try {
-                $themeManager->{$method}(null);
-                return;
-            } catch (Throwable $exception) {
-                // Ignore failure.
-            }
-        }
-    }
-
-    /**
-     * Persist the original template path so we can restore it later.
-     */
-    private function storeOriginalTemplate(Settings $settings, TemplateMapResolver $resolver): void
-    {
-        $originalPath = $settings->get('globallandingpage_original_template');
-        if ($originalPath !== null && $originalPath !== '') {
-            return;
-        }
-
-        $current = $this->getCurrentTemplatePath($resolver);
-        if ($current !== null && $current !== '') {
-            $settings->set('globallandingpage_original_template', $current);
-        }
-    }
-
-    /**
-     * Restore the original template or remove the override.
-     */
-    private function restoreOriginalTemplate(Settings $settings, TemplateMapResolver $resolver): void
-    {
-        $original = $settings->get('globallandingpage_original_template');
-        if (is_string($original) && $original !== '') {
-            $this->setTemplatePath($resolver, $original);
-            return;
-        }
-
-        $this->clearTemplateOverride($resolver);
-    }
-
-    /**
-     * Set the template map entry.
-     */
-    private function setTemplatePath(TemplateMapResolver $resolver, string $path): void
-    {
-        if (method_exists($resolver, 'add')) {
-            $resolver->add(self::TEMPLATE_NAME, $path);
-            return;
-        }
-
-        $map = $this->getResolverMap($resolver);
-        $map[self::TEMPLATE_NAME] = $path;
         $resolver->setMap($map);
     }
 
     /**
-     * Remove the module override.
-     */
-    private function clearTemplateOverride(TemplateMapResolver $resolver): void
-    {
-        $map = $this->getResolverMap($resolver);
-        if (isset($map[self::TEMPLATE_NAME])) {
-            unset($map[self::TEMPLATE_NAME]);
-            $resolver->setMap($map);
-        }
-    }
-
-    private function getCurrentTemplatePath(TemplateMapResolver $resolver): ?string
-    {
-        $map = $this->getResolverMap($resolver);
-        return $map[self::TEMPLATE_NAME] ?? null;
-    }
-
-    /**
-     * Retrieve the resolver map safely.
+     * Ensure the template path stack includes the module's view path when enabled.
      *
-     * @return array<string, string>
+     * @param object|null $templatePathStack
      */
-    private function getResolverMap(TemplateMapResolver $resolver): array
+    private function configureTemplatePathStack($templatePathStack, bool $enabled): void
     {
-        return method_exists($resolver, 'getMap') ? $resolver->getMap() : [];
+        if (!$templatePathStack instanceof TemplatePathStack) {
+            return;
+        }
+
+        $moduleViewPath = realpath(__DIR__ . '/view') ?: __DIR__ . '/view';
+        $normalizedTarget = realpath($moduleViewPath) ?: rtrim($moduleViewPath, DIRECTORY_SEPARATOR);
+        $existingPaths = $this->collectTemplatePaths($templatePathStack);
+
+        if ($enabled) {
+            foreach ($existingPaths as $existingPath) {
+                $normalizedExisting = realpath($existingPath) ?: rtrim($existingPath, DIRECTORY_SEPARATOR);
+                if ($normalizedExisting === $normalizedTarget) {
+                    return;
+                }
+            }
+
+            $templatePathStack->addPath($moduleViewPath);
+            return;
+        }
+
+        if ($existingPaths === []) {
+            return;
+        }
+
+        $filteredPaths = [];
+        $modified = false;
+
+        foreach ($existingPaths as $existingPath) {
+            $normalizedExisting = realpath($existingPath) ?: rtrim($existingPath, DIRECTORY_SEPARATOR);
+            if ($normalizedExisting === $normalizedTarget) {
+                $modified = true;
+                continue;
+            }
+            $filteredPaths[] = $existingPath;
+        }
+
+        if (!$modified) {
+            return;
+        }
+
+        if (method_exists($templatePathStack, 'setPaths')) {
+            $templatePathStack->setPaths($filteredPaths);
+            return;
+        }
+
+        if (method_exists($templatePathStack, 'clearPaths')) {
+            $templatePathStack->clearPaths();
+            foreach ($filteredPaths as $path) {
+                $templatePathStack->addPath($path);
+            }
+        }
     }
 
     /**
-     * Collect themes that provide the landing page template.
-     *
-     * @return array<string, array{label: string, template: string}>
+     * @return string[]
      */
-    private function getAvailableThemesWithTemplate(ServiceLocatorInterface $services): array
+    private function collectTemplatePaths(TemplatePathStack $templatePathStack): array
     {
-        $themesWithTemplate = [];
-
-        if ($services->has('Omeka\Site\ThemeManager')) {
-            $themeManager = $services->get('Omeka\Site\ThemeManager');
-
-            foreach ($themeManager->getThemes() as $theme) {
-                $themeId = $this->getThemeIdentifier($theme);
-                if ($themeId === '') {
-                    continue;
-                }
-
-                $templatePath = $this->resolveThemeTemplatePath($theme, $themeId);
-                if (!$templatePath) {
-                    continue;
-                }
-
-                $themesWithTemplate[$themeId] = [
-                    'label' => $this->deriveThemeLabel($theme, $themeId),
-                    'template' => $templatePath,
-                ];
-            }
+        if (method_exists($templatePathStack, 'getPaths')) {
+            $paths = $templatePathStack->getPaths();
+            return $this->normalizeTemplatePaths($paths);
         }
 
-        if (empty($themesWithTemplate) && defined('OMEKA_PATH')) {
-            $themesDir = OMEKA_PATH . '/themes';
-            if (is_dir($themesDir)) {
-                foreach (new DirectoryIterator($themesDir) as $dir) {
-                    if (!$dir->isDir() || $dir->isDot()) {
-                        continue;
-                    }
-
-                    $themeId = $dir->getFilename();
-                    $templatePath = $dir->getPathname() . '/view/omeka/index/index.phtml';
-                    if (!is_file($templatePath)) {
-                        continue;
-                    }
-
-                    $themesWithTemplate[$themeId] = [
-                        'label' => $this->deriveThemeLabelFromDirectory($dir->getPathname(), $themeId),
-                        'template' => $templatePath,
-                    ];
-                }
-            }
+        if ($templatePathStack instanceof \Traversable) {
+            return $this->normalizeTemplatePaths($templatePathStack);
         }
 
-        uasort($themesWithTemplate, static function (array $a, array $b): int {
-            return strcasecmp($a['label'], $b['label']);
-        });
-
-        return $themesWithTemplate;
+        return [];
     }
 
     /**
-     * Determine the theme identifier.
-     *
-     * @param mixed $theme
+     * @param iterable<string|mixed>|array<string|mixed> $paths
+     * @return string[]
      */
-    private function getThemeIdentifier($theme): string
+    private function normalizeTemplatePaths($paths): array
     {
-        foreach (['getId', 'getName', 'getSlug'] as $method) {
-            if (method_exists($theme, $method)) {
-                /** @var mixed $value */
-                $value = $theme->{$method}();
-                if (is_string($value) && $value !== '') {
-                    return $value;
-                }
+        if (is_array($paths)) {
+            $iterable = $paths;
+        } elseif ($paths instanceof \Traversable) {
+            $iterable = $paths;
+            if ($paths instanceof \SplPriorityQueue) {
+                $clone = clone $paths;
+                $clone->setExtractFlags(\SplPriorityQueue::EXTR_DATA);
+                $iterable = $clone;
+            }
+        } else {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($iterable as $key => $value) {
+            if (is_string($value) && $value !== '') {
+                $normalized[] = $value;
+                continue;
+            }
+
+            if (is_string($key) && $key !== '') {
+                $normalized[] = $key;
             }
         }
 
-        return '';
-    }
-
-    /**
-     * Resolve the template path for a theme object.
-     *
-     * @param mixed $theme
-     */
-    private function resolveThemeTemplatePath($theme, string $themeId): ?string
-    {
-        $basePath = '';
-        foreach (['getPath', 'getRootPath', 'getBasePath'] as $method) {
-            if (method_exists($theme, $method)) {
-                /** @var mixed $value */
-                $value = $theme->{$method}();
-                if (is_string($value) && $value !== '') {
-                    $basePath = $value;
-                    break;
-                }
-            }
-        }
-
-        if ($basePath === '' && defined('OMEKA_PATH')) {
-            $basePath = OMEKA_PATH . '/themes/' . $themeId;
-        }
-
-        $templatePath = $basePath . '/view/omeka/index/index.phtml';
-        return is_file($templatePath) ? $templatePath : null;
-    }
-
-    /**
-     * Derive a readable label for a theme.
-     *
-     * @param mixed $theme
-     */
-    private function deriveThemeLabel($theme, string $themeId): string
-    {
-        foreach (['getLabel', 'getTitle', 'getDisplayName', 'getName'] as $method) {
-            if (method_exists($theme, $method)) {
-                try {
-                    /** @var mixed $value */
-                    $value = $theme->{$method}();
-                    if (is_string($value) && $value !== '') {
-                        return $value;
-                    }
-                } catch (Throwable $exception) {
-                    // Ignore and continue to other methods.
-                }
-            }
-        }
-
-        if (method_exists($theme, 'getIni')) {
-            try {
-                /** @var mixed $value */
-                $value = $theme->getIni('label');
-                if (is_string($value) && $value !== '') {
-                    return $value;
-                }
-            } catch (Throwable $exception) {
-                // Ignore and fall back.
-            }
-        }
-
-        return $themeId;
-    }
-
-    private function deriveThemeLabelFromDirectory(string $themePath, string $themeId): string
-    {
-        $iniPath = $themePath . '/config/theme.ini';
-        if (!is_file($iniPath)) {
-            return $themeId;
-        }
-
-        $ini = @parse_ini_file($iniPath);
-        if (is_array($ini)) {
-            foreach (['label', 'title', 'name'] as $key) {
-                if (!empty($ini[$key]) && is_string($ini[$key])) {
-                    return $ini[$key];
-                }
-            }
-        }
-
-        return $themeId;
-    }
-
-    /**
-     * Retrieve the main service manager, falling back to context-specific sources.
-     */
-    private function locateServices(?PhpRenderer $renderer = null, ?AbstractController $controller = null): ServiceLocatorInterface
-    {
-        $services = $this->getServiceLocator();
-        if ($services instanceof ServiceLocatorInterface) {
-            return $services;
-        }
-
-        if ($renderer !== null) {
-            $helpers = $renderer->getHelperPluginManager();
-            if (method_exists($helpers, 'getServiceLocator')) {
-                $services = $helpers->getServiceLocator();
-                if ($services instanceof ServiceLocatorInterface) {
-                    $this->setServiceLocator($services);
-                    return $services;
-                }
-            }
-            if (method_exists($helpers, 'getServiceManager')) {
-                $services = $helpers->getServiceManager();
-                if ($services instanceof ServiceLocatorInterface) {
-                    $this->setServiceLocator($services);
-                    return $services;
-                }
-            }
-        }
-
-        if ($controller !== null) {
-            if (method_exists($controller, 'getServiceLocator')) {
-                $services = $controller->getServiceLocator();
-                if ($services instanceof ServiceLocatorInterface) {
-                    $this->setServiceLocator($services);
-                    return $services;
-                }
-            }
-            if (method_exists($controller, 'getEvent')) {
-                $event = $controller->getEvent();
-                if ($event && method_exists($event, 'getApplication')) {
-                    $application = $event->getApplication();
-                    if ($application && method_exists($application, 'getServiceManager')) {
-                        $services = $application->getServiceManager();
-                        if ($services instanceof ServiceLocatorInterface) {
-                            $this->setServiceLocator($services);
-                            return $services;
-                        }
-                    }
-                }
-            }
-        }
-
-        throw new RuntimeException('Unable to access the Omeka service locator.');
+        return array_values(array_unique($normalized));
     }
 }

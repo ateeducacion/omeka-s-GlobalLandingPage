@@ -1,6 +1,6 @@
 {
     "name": "ateeducacion/omeka-s-globallandingpage",
-    "description": "Override the Omeka S global index page with a template provided by an installed theme",
+    "description": "Deliver a self-contained landing page for the Omeka S global index without relying on public sites or themes",
     "type": "omeka-s-module",
     "license": "GPL-3.0-or-later",
     "authors": [
@@ -17,7 +17,7 @@
         "Omeka S",
         "module",
         "landing page",
-        "theme override"
+        "standalone override"
     ],
     "require": {
         "php": ">=7.4"
@@ -35,8 +35,7 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "*",
         "phpunit/phpunit": "*",
-        "zerocrates/extract-tagged-strings": "dev-master",
-        "laminas/laminas-form": "^3.4"
+        "zerocrates/extract-tagged-strings": "dev-master"
     },
     "autoload": {
         "psr-4": {
