@@ -1,0 +1,43 @@
+// Colors
+$color__primary: var(--primary);
+$color__primary-dark: var(--primary-dark);
+$color__primary-contrast: var(--primary-contrast);
+$color__secondary: var(--secondary);
+$color__secondary-dark: var(--secondary-dark);
+$color__secondary-contrast: var(--secondary-contrast);
+$color__accent: var(--accent);
+$color__accent-dark: var(--accent-dark);
+$color__success: #4cbb87;
+$color__warning: #ff5c00;
+$color__error: #ee001d;
+$color__bg-body: #fff;
+$color-decoration-glow: rgba(256, 256, 256, 0.2);
+
+// Grayscale
+$color__black: #333;
+$color__gray-33: #555;
+$color__gray-40: #666;
+$color__gray-46: #767676;
+$color__gray-47: #777;
+$color__gray-58: #949494;
+$color__gray-60: #999;
+$color__gray-67: #aaa;
+$color__gray-80: #ccc;
+$color__gray-87: #ddd;
+$color__gray-93: #ececec;
+$color__gray-95: #f3f3f3;
+$color__white: #fff;
+
+//Applications
+$color__headings: $color__black;
+$color__main-text: $color__gray-40;
+$color__secondary-text: $color__gray-60;
+$color__buttons: $color__primary;
+$color__icons: $color__primary;
+$color__link: $color__accent;
+$color__menu-drawer: $color__secondary-dark;
+$color__hr: $color__gray-93;
+$color__light-bg: $color__gray-95;
+$color__disabled: $color__gray-80;
+$color__placeholder: $color__gray-46;
+$color__field-border: $color__gray-58;

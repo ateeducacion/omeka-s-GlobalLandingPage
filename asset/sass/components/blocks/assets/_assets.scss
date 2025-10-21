@@ -1,0 +1,16 @@
+.assets,
+.block-asset {
+    margin-bottom: 3rem;
+
+    &.inline {
+        .assets {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+
+            @media(min-width: $md) {
+                flex-direction: row;
+            }
+        }
+    }
+}

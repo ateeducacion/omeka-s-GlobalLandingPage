@@ -2,24 +2,121 @@
 /**
  * @var Laminas\View\Renderer\PhpRenderer $this
  */
+
+$navItems = [];
+if (isset($this->navItems) && is_iterable($this->navItems)) {
+    foreach ($this->navItems as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $label = isset($item['label']) ? (string) $item['label'] : '';
+        $url = isset($item['url']) ? (string) $item['url'] : '';
+        if ($label === '' || $url === '') {
+            continue;
+        }
+        $navItems[] = [
+            'label' => $label,
+            'url' => $url,
+            'active' => !empty($item['active']),
+        ];
+    }
+}
+if ($navItems === []) {
+    $navItems = [
+        ['label' => $this->translate('Home'), 'url' => '#hero', 'active' => true],
+        ['label' => $this->translate('Collections'), 'url' => '#collections', 'active' => false],
+        ['label' => $this->translate('About'), 'url' => '#about', 'active' => false],
+        ['label' => $this->translate('Contact'), 'url' => '#contact', 'active' => false],
+    ];
+}
+
+$headerModifier = trim((string) ($this->headerModifier ?? 'main-header--inline'));
+$siteTitle = isset($this->siteTitle) ? (string) $this->siteTitle : $this->translate('Global Landing Page');
+$siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('Repositorio de medios audiovisuales educativos.');
+$siteLogo = $this->siteLogo ?? null;
+$homeAnchor = '#hero';
+$logoHtml = '';
+
+if (is_array($siteLogo)) {
+    $src = isset($siteLogo['src']) ? (string) $siteLogo['src'] : '';
+    $alt = isset($siteLogo['alt']) ? (string) $siteLogo['alt'] : $siteTitle;
+    if ($src !== '') {
+        $logoHtml = sprintf(
+            '<img src="%s" alt="%s">',
+            $this->escapeHtmlAttr($src),
+            $this->escapeHtmlAttr($alt)
+        );
+    }
+} elseif (is_string($siteLogo) && $siteLogo !== '') {
+    $logoHtml = sprintf(
+        '<img src="%s" alt="%s">',
+        $this->escapeHtmlAttr($siteLogo),
+        $this->escapeHtmlAttr($siteTitle)
+    );
+}
+
+$this->inlineScript()->appendScript(sprintf(
+    'window.closeText = %s; window.previousText = %s;',
+    json_encode($this->translate('Close menu')),
+    json_encode($this->translate('Back'))
+));
 ?>
-<header class="global-landing__header">
-    <div class="global-landing__header-inner">
-        <div class="branding">
-            <span class="branding__title">
-                <?php echo $this->translate('Global Landing Page'); ?>
-            </span>
-            <span class="branding__subtitle">
-                <?php echo $this->translate('A self-contained welcome experience for Omeka S.'); ?>
-            </span>
+<header class="main-header <?= $this->escapeHtmlAttr($headerModifier); ?>" role="banner">
+    <div class="main-header__top-bar container">
+            <div class="main-header__advanced-search">
+                <a class="link-style" href="#advanced-search">
+                    <?= $this->translate('Advanced search'); ?>
+                </a>
+            </div>
+            <div class="main-header__search-form">
+                <?= $this->partial(
+                    'common/cross-site-search/fulltext-form.phtml',
+                    ['action' => $this->url('search', ['action' => 'results'], true)]
+                ); ?>
+            </div>
+    </div>
+    <hr>
+    <div class="main-header__main-bar container">
+        <div class="main-header__site-title">
+            <a href="<?= $this->escapeHtmlAttr($homeAnchor); ?>">
+                <?php if ($logoHtml !== ''): ?>
+                    <?= $logoHtml; ?>
+                <?php else: ?>
+                    <?= $this->escapeHtml($siteTitle); ?>
+                <?php endif; ?>
+            </a>
+            <?php if ($siteSubtitle !== ''): ?>
+                <p>
+                    <?= $this->escapeHtml($siteSubtitle); ?>
+                </p>
+            <?php endif; ?>
         </div>
-        <nav class="global-landing__nav" aria-label="<?php echo $this->translate('Landing page sections'); ?>">
-            <ul>
-                <li><a href="#main-content"><?php echo $this->translate('Home'); ?></a></li>
-                <li><a href="#collections"><?php echo $this->translate('Collections'); ?></a></li>
-                <li><a href="#about"><?php echo $this->translate('About'); ?></a></li>
-                <li><a href="#contact"><?php echo $this->translate('Contact'); ?></a></li>
-            </ul>
+        <nav class="main-navigation" aria-label="<?= $this->translate('Primary navigation'); ?>">
+            <button
+                type="button"
+                class="main-navigation__toggle"
+                aria-expanded="false"
+                aria-controls="primary-navigation menu-drawer"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+                <span class="screen-reader-text"><?= $this->translate('Toggle navigation'); ?></span>
+            </button>
+            <div class="main-navigation__container" id="primary-navigation">
+                <ul class="navigation">
+                    <?php foreach ($navItems as $navItem): ?>
+                        <li class="<?= $navItem['active'] ? 'active' : ''; ?>">
+                            <a
+                                href="<?= $this->escapeHtmlAttr($navItem['url']); ?>"
+                                <?= $navItem['active'] ? 'aria-current="page"' : ''; ?>
+                            >
+                                <?= $this->escapeHtml($navItem['label']); ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         </nav>
     </div>
 </header>

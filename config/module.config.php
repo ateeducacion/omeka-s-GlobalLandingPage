@@ -26,6 +26,21 @@ return [
             Controller\LandingController::class => InvokableFactory::class,
         ],
     ],
+    'view_helpers' => [
+        'factories' => [
+            View\Helper\ShadeColor::class => InvokableFactory::class,
+            View\Helper\ContrastColor::class => InvokableFactory::class,
+            View\Helper\ResourceTags::class => InvokableFactory::class,
+        ],
+        'aliases' => [
+            'shadeColor' => View\Helper\ShadeColor::class,
+            'ShadeColor' => View\Helper\ShadeColor::class,
+            'contrastColor' => View\Helper\ContrastColor::class,
+            'ContrastColor' => View\Helper\ContrastColor::class,
+            'resourceTags' => View\Helper\ResourceTags::class,
+            'ResourceTags' => View\Helper\ResourceTags::class,
+        ],
+    ],
     'view_manager' => [
         'template_map' => [
             'global-landing-page/config-form' => __DIR__ . '/config_form.php',

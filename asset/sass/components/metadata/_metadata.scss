@@ -1,0 +1,126 @@
+.metadata {
+    width: 100%;
+
+    @media (min-width: $md) {
+        width: auto;
+    }
+
+    > div:not(:last-child),
+    .media-render:not(:last-child) {
+        margin-bottom: 2rem;
+    }
+
+    .media-render > * {
+        max-width: 100%;
+    }
+
+    dl {
+        margin-top: 0;
+        margin-bottom: 2rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        > .property {
+            margin-bottom: 1.25rem;
+
+            &::after {
+                content: "";
+                display: table;
+                clear: both;
+            }
+    
+            dt {
+                margin-bottom: 0.5rem;
+                padding-right: 15px;
+
+                &:not(.sidebar-region &) {
+                    @media (min-width: $md) {
+                        margin-bottom: 0;
+                        float: left;
+                        width: 160px;
+                    }
+                }
+            }
+    
+            dd {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 3px;
+                margin: 0 0 1rem;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+                white-space: normal;
+                align-items: flex-start;
+
+                &:not(.sidebar-region &) {
+                    @media (min-width: $md) {
+                        margin-left: 160px;
+                    }
+                }
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+    
+            .language {
+                margin-right: 5px;
+            }
+        }
+    }
+
+    .value.resource {
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        img {
+            flex-shrink: 0;
+            height: 60px;
+            margin-right: 1rem;
+            object-fit: cover;
+            width: 60px;
+        }
+    }
+
+    .media-list {
+        dd {
+            border: 1px solid $color__hr;
+            margin-bottom: 1rem !important;
+
+            &:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        .resource-link {
+            display: flex;
+            align-items: center;
+
+            img {
+                flex-shrink: 0;
+                height: 100px;
+                object-fit: cover;
+                width: 100px;
+            }
+
+            .resource-name {
+                padding: 1rem;
+            }
+        }
+    }
+    .block-tools{
+        margin-top: auto
+    }
+        
+}
+.main-region > .metadata {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;   /* importante para que flex funcione bien */
+}
+

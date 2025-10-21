@@ -4,6 +4,7 @@
  */
 
 $this->doctype(\Laminas\View\Helper\Doctype::HTML5);
+
 $translate = $this->plugin('translate');
 $translator = method_exists($translate, 'getTranslator') ? $translate->getTranslator() : null;
 $lang = 'en';
@@ -12,7 +13,59 @@ if ($translator && method_exists($translator, 'getLocale')) {
 } elseif (class_exists(\Locale::class)) {
     $lang = (string) \Locale::getDefault();
 }
+
 $this->headTitle($this->translate('Global Landing Page')); // @translate
+$this->headLink()->prependStylesheet($this->assetUrl('css/iconfonts.css', 'Omeka'));
+$this->headLink()->prependStylesheet('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
+$this->headLink()->prependStylesheet('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+$this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
+$this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/style.css', 'GlobalLandingPage'));
+$this->headScript()->appendFile($this->assetUrl('js/navigation.js', 'GlobalLandingPage'));
+$this->headScript()->appendFile($this->assetUrl('js/script.js', 'GlobalLandingPage'));
+
+$colorDefaults = [
+    'primary_color' => '#e77f11',
+    'secondary_color' => '#394f68',
+    'accent_color' => '#394f68',
+];
+
+$settingsFile = dirname(__DIR__, 2) . '/config/settings.ini';
+if (is_readable($settingsFile)) {
+    $settingsData = @parse_ini_file($settingsFile, true, INI_SCANNER_RAW);
+    if (is_array($settingsData)) {
+        $colorSection = $settingsData['site_settings'] ?? $settingsData['settings'] ?? [];
+        foreach ($colorDefaults as $colorKey => $defaultValue) {
+            $value = $colorSection[$colorKey . '.value'] ?? $colorSection[$colorKey . '.default'] ?? null;
+            if (is_string($value) && $value !== '') {
+                $colorDefaults[$colorKey] = $value;
+            }
+        }
+    }
+}
+
+$primaryColor = (string) $colorDefaults['primary_color'];
+$secondaryColor = (string) $colorDefaults['secondary_color'];
+$accentColor = (string) $colorDefaults['accent_color'];
+
+$headerModifier = (string) ($this->headerModifier ?? 'main-header--inline');
+$bodyClass = trim(sprintf(
+    '%s %s',
+    $headerModifier,
+    isset($this->bodyClass) ? (string) $this->bodyClass : ''
+));
+
+$defaultNavItems = [
+    ['label' => $this->translate('Home'), 'url' => '#hero', 'active' => true],
+    ['label' => $this->translate('Collections'), 'url' => '#collections', 'active' => false],
+    ['label' => $this->translate('About'), 'url' => '#about', 'active' => false],
+    ['label' => $this->translate('Contact'), 'url' => '#contact', 'active' => false],
+];
+$navItems = $this->headerNavigation ?? $defaultNavItems;
+
+$siteTitle = (string) ($this->siteTitle ?? $this->translate('Global Landing Page'));
+$siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('A self-contained welcome experience for Omeka S.');
+$siteLogo = $this->siteLogo ?? null;
 ?>
 <?= $this->doctype(); ?>
 <html lang="<?= $this->escapeHtmlAttr($lang); ?>">
@@ -23,13 +76,45 @@ $this->headTitle($this->translate('Global Landing Page')); // @translate
     <?= $this->headMeta(); ?>
     <?= $this->headLink(); ?>
     <?= $this->headScript(); ?>
+    <style type="text/css" media="screen">
+        :root {
+            --primary: <?php echo $primaryColor; ?>;
+            --primary-dark: <?php echo $this->ShadeColor($primaryColor, -10); ?>;
+            --primary-contrast: <?php echo $this->ContrastColor($primaryColor, ['#fff', '#333']); ?>;
+            --secondary: <?php echo $secondaryColor; ?>;
+            --secondary-dark: <?php echo $this->ShadeColor($secondaryColor, -10); ?>;
+            --secondary-contrast: <?php echo $this->ContrastColor($secondaryColor, ['#fff', '#333']); ?>;
+            --accent: <?php echo $accentColor; ?>;
+            --accent-dark: <?php echo $this->ShadeColor($accentColor, -10); ?>;
+        }
+    </style>
 </head>
-<body class="global-landing__body">
-    <a href="#main-content" class="skip-link">
-        <?= $this->translate('Skip to main content'); ?>
-    </a>
+<body class="<?= $this->escapeHtmlAttr($bodyClass); ?>">
 
-    <?= $this->content; ?>
+    <?= $this->partial('global-landing-page/common/header', [
+        'navItems' => $navItems,
+        'siteTitle' => $siteTitle,
+        'siteSubtitle' => $siteSubtitle,
+        'siteLogo' => $siteLogo,
+        'headerModifier' => $headerModifier,
+    ]); ?>
+
+    <div id="menu-drawer" class="menu-drawer" aria-hidden="true" inert>
+        <div class="wrap">
+            <div class="navigation-controls">
+                <a href="#" id="menu-backer" role="button" aria-live="polite">
+                    <?= $this->translate('Close menu'); ?>
+                </a>
+            </div>
+            <div id="menu-clones" class="menu-container" aria-hidden="true"></div>
+        </div>
+    </div>
+
+    <main id="main-content" class="site-main" role="main">
+        <?= $this->content; ?>
+    </main>
+
+    <?= $this->partial('global-landing-page/common/footer'); ?>
 
     <?= $this->inlineScript(); ?>
 </body>

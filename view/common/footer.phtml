@@ -3,13 +3,32 @@
  * @var Laminas\View\Renderer\PhpRenderer $this
  */
 ?>
-<footer class="global-landing__footer">
-    <div class="global-landing__footer-inner">
-        <p>
-            <?php echo $this->translate('Powered by Omeka S and the GlobalLandingPage module.'); ?>
-        </p>
-        <p class="small-print">
-            &copy; <?php echo date('Y'); ?> <?php echo $this->translate('Your institution or project name'); ?>.
-        </p>
-    </div>
+<footer class="main-footer">
+	<!-- Footer Top -->
+	<!-- Footer Bottom -->
+	<div class="main-footer__bottom">
+		<div class="container main-footer__bottom-container ">
+		
+			<!-- Copyright -->
+			<div class="main-footer__copyright">
+				<div>
+                    <span>© Gobierno de Canarias</span>
+                </div>
+
+                <div>
+                    <span>
+                    <a href="https://www.gobiernodecanarias.org/principal/avisolegal.html">
+                        Aviso legal
+                    </a>
+                    </span>
+                    <span>
+                    <a href="https://www.gobiernodecanarias.org/eucd/politica_privacidad/">
+                        Política de privacidad
+                    </a>
+                    </span>
+                </div>							
+            </div>
+		</div>
+	</div>
+
 </footer>
