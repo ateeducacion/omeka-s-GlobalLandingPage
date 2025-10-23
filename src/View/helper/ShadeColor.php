@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace GlobalLandingPage\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
@@ -21,6 +21,13 @@ class ShadeColor extends AbstractHelper
         $b = ($num >> 8 & 0x00ff) + $amt;
         $g = ($num & 0x0000ff) + $amt;
 
-        return '#'.substr(base_convert(0x1000000 + ($r<255?$r<1?0:$r:255)*0x10000 + ($b<255?$b<1?0:$b:255)*0x100 + ($g<255?$g<1?0:$g:255), 10, 16), 1);
+        return '#'.substr(
+            base_convert(
+                0x1000000 + ($r<255?$r<1?0:$r:255)*0x10000 + ($b<255?$b<1?0:$b:255)*0x100 + ($g<255?$g<1?0:$g:255),
+                10,
+                16
+            ),
+            1
+        );
     }
 }

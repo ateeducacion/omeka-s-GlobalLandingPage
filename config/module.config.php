@@ -43,7 +43,7 @@ return [
     ],
     'view_manager' => [
         'template_map' => [
-            'global-landing-page/config-form' => __DIR__ . '/config_form.php',
+            'global-landing-page/config-form' => dirname(__DIR__) . '/config/config_form.php',
             'global-landing-page/layout' => dirname(__DIR__) . '/view/layout/layout.phtml',
             'global-landing-page/common/header' => dirname(__DIR__) . '/view/common/header.phtml',
             'global-landing-page/common/footer' => dirname(__DIR__) . '/view/common/footer.phtml',

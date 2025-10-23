@@ -5,140 +5,150 @@
  * @var string|null $lead
  * @var string|null $primaryActionLabel
  * @var string|null $primaryActionUrl
+ * @var array $recentItems
+ * @var array $featuredSites
  */
 
 $headline = $this->headline ?? $this->translate('Servicio Mediateca'); // @translate
 $lead = $this->lead ?? $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
 $primaryActionLabel = $this->primaryActionLabel ?? $this->translate('Browse Collections'); // @translate
 $primaryActionUrl = $this->primaryActionUrl ?? '#collections';
-$siteLogo=$this->assetUrl('img/logo-mediateca.svg', 'GlobalLandingPage');
+$sitesLogos = [];
+$sitesLogos[] = $this->assetUrl('img/logo-mediateca.svg', 'GlobalLandingPage');
+$sitesLogos[] = $this->assetUrl('img/ate_logo.png', 'GlobalLandingPage');
+$sitesLogos[] = $this->assetUrl('img/logo-cauce.png', 'GlobalLandingPage');
 $heroImage = $this->heroImage ?? null;
 
 $layout = $this->layout();
 if ($layout) {
     $layout->setVariable('siteTitle', $headline);
     $layout->setVariable('siteSubtitle', $lead);
-    $layout->setVariable('siteLogo', $siteLogo);
+    $layout->setVariable('sitesLogos', $sitesLogos);
     $layout->setVariable('headerNavigation', [
         ['label' => $this->translate('Home'), 'url' => '#hero', 'active' => true],
-        ['label' => $this->translate('Collections'), 'url' => '#collections', 'active' => false],
-        ['label' => $this->translate('About'), 'url' => '#about', 'active' => false],
+        ['label' => $this->translate('Recent Items'), 'url' => '#recent-items', 'active' => false],
+        ['label' => $this->translate('Featured Sites'), 'url' => '#featured-sites', 'active' => false],
         ['label' => $this->translate('Contact'), 'url' => '#contact', 'active' => false],
     ]);
 }
 
-$sites = [];
-try {
-    $response = $this->api()->search('sites', [
-        'site_status' => 'public',
-        'sort_by' => 'o:title',
-        'sort_order' => 'asc',
-        'limit' => 6,
-    ]);
-    $sites = $response->getContent();
-} catch (\Exception $exception) {
-    $sites = [];
-}
+// Load Masonry and imagesLoaded libraries via CDN
+$this->headScript()->appendFile('https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
+$this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js');
+// Load custom Masonry initialization script
+$this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
 ?>
 
-
-<section class="container" id="collections" aria-labelledby="collections-heading">
-    <h2 id="collections-heading">
-        <?= $this->translate('Featured Omeka S sites'); ?>
+<!-- Recent Items Section -->
+<section class="container" id="recent-items" aria-labelledby="recent-items-heading">
+    <h2 id="recent-items-heading">
+        <?= $this->translate('Recent Items'); ?>
     </h2>
     <p>
-        <?= $this->translate('Browse recent or highlighted sites across your Omeka S installation.'); ?>
+        <?= $this->translate('Explore the 10 most recently added items to our collection.'); ?>
     </p>
-    <div class="list-of-sites" role="list">
-        <?php if ($sites): ?>
-            <?php foreach ($sites as $site): ?>
+    
+    <?php if (!empty($recentItems)): ?>
+        <div class="resource-grid" id="recent-items-grid">
+            <?php foreach ($recentItems as $item): ?>
                 <?php
-                $siteSlug = method_exists($site, 'slug') ? $site->slug() : (is_array($site) ? ($site['o:slug'] ?? null) : null);
-                $siteUrl = method_exists($site, 'siteUrl')
-                    ? $site->siteUrl()
-                    : ($siteSlug ? $this->url('site', ['site-slug' => $siteSlug]) : '#');
-                $siteTitle = method_exists($site, 'title')
-                    ? $site->title()
-                    : (is_array($site) ? ($site['o:title'] ?? '') : '');
-                $thumbnailUrl = method_exists($site, 'thumbnailDisplayUrl')
-                    ? $site->thumbnailDisplayUrl('square')
-                    : null;
-                $summary = method_exists($site, 'summary')
-                    ? (string) $site->summary()
-                    : (is_array($site) ? ($site['o:summary'] ?? '') : '');
+                $itemUrl = $item->url();
+                $itemTitle = $item->displayTitle();
+                $thumbnailUrl = null;
+                
+                // Get primary media thumbnail
+                $primaryMedia = $item->primaryMedia();
+                if ($primaryMedia) {
+                    $thumbnailUrl = $primaryMedia->thumbnailUrl('large');
+                }
+                
+                // Get resource class label
+                $resourceClass = $item->resourceClass();
+                $resourceClassLabel = $resourceClass ? $resourceClass->label() : null;
                 ?>
-                <article class="site" role="listitem">
-                    <a href="<?= $this->escapeHtmlAttr($siteUrl); ?>">
+                <article class="resource">
+                    <a href="<?= $this->escapeHtmlAttr($itemUrl); ?>">
                         <?php if ($thumbnailUrl): ?>
-                            <div class="site-thumbnail-image">
-                                <img
-                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>"
-                                    alt="<?= $this->escapeHtmlAttr($siteTitle); ?>"
+                            <div class="resource__thumbnail">
+                                <img 
+                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>" 
+                                    alt="<?= $this->escapeHtmlAttr($itemTitle); ?>"
+                                    loading="lazy"
                                 >
                             </div>
+                        <?php else: ?>
+                            <div class="resource__thumbnail resource__thumbnail--placeholder">
+                                <span class="resource__thumbnail-icon">📄</span>
+                            </div>
                         <?php endif; ?>
-                        <div>
-                            <h3><?= $this->escapeHtml($siteTitle); ?></h3>
-                            <?php if ($summary !== ''): ?>
-                                <p><?= $this->escapeHtml($summary); ?></p>
+                        <div class="resource__content">
+                            <h3 class="resource__title"><?= $this->escapeHtml($itemTitle); ?></h3>
+                            <?php if ($resourceClassLabel): ?>
+                                <div class="resource__meta">
+                                    <span class="resource__type"><?= $this->escapeHtml($resourceClassLabel); ?></span>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </a>
                 </article>
             <?php endforeach; ?>
-        <?php else: ?>
-            <p>
-                <?= $this->translate('No public sites are available yet.'); ?>
-            </p>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php else: ?>
+        <p><?= $this->translate('No items available yet.'); ?></p>
+    <?php endif; ?>
 </section>
 
-<section class="container regions-container" aria-labelledby="about-heading">
-    <div class="main-region" id="about">
-        <h2 id="about-heading">
-            <?= $this->translate('About this archive'); ?>
-        </h2>
-        <p>
-            <?= $this->translate('Share provenance, curatorial goals, and collecting scopes so visitors understand the breadth of your holdings.'); ?>
-        </p>
-        <div class="resource-list">
-            <article class="resource">
-                <div class="resource__content">
-                    <h3><?= $this->translate('Curated exhibits'); ?></h3>
-                    <p><?= $this->translate('Introduce highlighted exhibits or thematic tours connected to your strongest narratives.'); ?></p>
-                </div>
-            </article>
-            <article class="resource">
-                <div class="resource__content">
-                    <h3><?= $this->translate('Powerful discovery'); ?></h3>
-                    <p><?= $this->translate('Surface items, item sets, and media with the built-in search tools and flexible advanced filters.'); ?></p>
-                </div>
-            </article>
-            <article class="resource">
-                <div class="resource__content">
-                    <h3><?= $this->translate('Flexible building blocks'); ?></h3>
-                    <p><?= $this->translate('Combine reusable sections to craft hero banners, feature grids, and calls to action without leaving Omeka S.'); ?></p>
-                </div>
-            </article>
+<!-- Featured Sites Section -->
+<section class="container" id="featured-sites" aria-labelledby="featured-sites-heading">
+    <h2 id="featured-sites-heading">
+        <?= $this->translate('Featured Sites'); ?>
+    </h2>
+    <p>
+        <?= $this->translate('Browse our featured thematic collections.'); ?>
+    </p>
+    
+    <?php if (!empty($featuredSites)): ?>
+        <div class="resource-grid" id="featured-sites-grid">
+            <?php foreach ($featuredSites as $site): ?>
+                <?php
+                $siteSlug = method_exists($site, 'slug') ? $site->slug() : null;
+                $siteUrl = method_exists($site, 'siteUrl')
+                    ? $site->siteUrl()
+                    : ($siteSlug ? $this->url('site', ['site-slug' => $siteSlug]) : '#');
+                $siteTitle = method_exists($site, 'title') ? $site->title() : '';
+                $thumbnailUrl = method_exists($site, 'thumbnailDisplayUrl')
+                    ? $site->thumbnailDisplayUrl('medium')
+                    : null;
+                $summary = method_exists($site, 'summary') ? (string) $site->summary() : '';
+                ?>
+                <article class="resource">
+                    <a href="<?= $this->escapeHtmlAttr($siteUrl); ?>">
+                        <?php if ($thumbnailUrl): ?>
+                            <div class="resource__thumbnail">
+                                <img 
+                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>" 
+                                    alt="<?= $this->escapeHtmlAttr($siteTitle); ?>"
+                                    loading="lazy"
+                                >
+                            </div>
+                        <?php else: ?>
+                            <div class="resource__thumbnail resource__thumbnail--placeholder">
+                                <span class="resource__thumbnail-icon">🏛️</span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="resource__content">
+                            <h3 class="resource__title"><?= $this->escapeHtml($siteTitle); ?></h3>
+                            <?php if ($summary !== ''): ?>
+                                <div class="resource__meta">
+                                    <p><?= $this->escapeHtml(mb_substr($summary, 0, 100)) . (mb_strlen($summary) > 100 ? '...' : ''); ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                </article>
+            <?php endforeach; ?>
         </div>
-    </div>
-    <aside class="sidebar-region sidebar-region--right" id="contact" aria-labelledby="contact-heading">
-        <h2 id="contact-heading">
-            <?= $this->translate('Stay connected'); ?>
-        </h2>
-        <p>
-            <?= $this->translate('Provide a way for visitors to follow updates or reach the team behind the collection.'); ?>
-        </p>
-        <ul>
-            <li>
-                <a href="mailto:info@example.org">info@example.org</a>
-            </li>
-            <li>
-                <a href="#">
-                    <?= $this->translate('Follow on social media'); ?>
-                </a>
-            </li>
-        </ul>
-    </aside>
+    <?php else: ?>
+        <p><?= $this->translate('No featured sites available yet.'); ?></p>
+    <?php endif; ?>
 </section>

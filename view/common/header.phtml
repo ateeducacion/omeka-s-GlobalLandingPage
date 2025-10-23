@@ -33,24 +33,43 @@ if ($navItems === []) {
 $headerModifier = trim((string) ($this->headerModifier ?? 'main-header--inline'));
 $siteTitle = isset($this->siteTitle) ? (string) $this->siteTitle : $this->translate('Global Landing Page');
 $siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('Repositorio de medios audiovisuales educativos.');
-$siteLogo = $this->siteLogo ?? null;
+$sitesLogos = $this->sitesLogos ?? null;
 $homeAnchor = '#hero';
 $logoHtml = '';
 
-if (is_array($siteLogo)) {
-    $src = isset($siteLogo['src']) ? (string) $siteLogo['src'] : '';
-    $alt = isset($siteLogo['alt']) ? (string) $siteLogo['alt'] : $siteTitle;
-    if ($src !== '') {
-        $logoHtml = sprintf(
+if (is_iterable($sitesLogos)) {
+    $logoFragments = [];
+    foreach ($sitesLogos as $logo) {
+        if (is_array($logo)) {
+            $src = isset($logo['src']) ? (string) $logo['src'] : '';
+            if ($src === '') {
+                continue;
+            }
+            $alt = isset($logo['alt']) ? (string) $logo['alt'] : $siteTitle;
+        } elseif (is_string($logo)) {
+            $src = $logo;
+            if ($src === '') {
+                continue;
+            }
+            $alt = $siteTitle;
+        } else {
+            continue;
+        }
+
+        $logoFragments[] = sprintf(
             '<img src="%s" alt="%s">',
             $this->escapeHtmlAttr($src),
-            $this->escapeHtmlAttr($alt)
+            $this->escapeHtmlAttr($alt !== '' ? $alt : $siteTitle)
         );
     }
-} elseif (is_string($siteLogo) && $siteLogo !== '') {
+
+    if ($logoFragments !== []) {
+        $logoHtml = implode("\n", $logoFragments);
+    }
+} elseif (is_string($sitesLogos) && $sitesLogos !== '') {
     $logoHtml = sprintf(
         '<img src="%s" alt="%s">',
-        $this->escapeHtmlAttr($siteLogo),
+        $this->escapeHtmlAttr($sitesLogos),
         $this->escapeHtmlAttr($siteTitle)
     );
 }

@@ -4,6 +4,7 @@ const freedomScripts = () => {
     const mainHeader = document.querySelector('.main-header');
     const mainHeaderTopBar = document.querySelector('.main-header__top-bar');
     const mainHeaderMainBar = document.querySelector('.main-header__main-bar');
+    const mainHeaderMainBar_logos = document.querySelectorAll('.main-header__site-title a img');
     const menuDrawer = document.getElementById('menu-drawer');
     const userBar = document.getElementById('user-bar');
 
@@ -18,10 +19,18 @@ const freedomScripts = () => {
             mainHeader.style.top = - (userBarHeight + mainHeaderTopBar.offsetHeight) + 'px';
             menuDrawer.style.top = mainHeaderMainBar.offsetHeight + 'px';
             menuDrawer.style.height = 'calc(100% - ' + mainHeaderMainBar.offsetHeight + 'px)';
+            /*mainHeaderMainBar_logos.forEach(img => {
+                img.style.maxHeight = '30px';
+            });*/
+            
+
         } else {
             mainHeader.style.top = 0;
             menuDrawer.style.top = mainHeader.offsetHeight + 'px';
             menuDrawer.style.height = 'calc(100% - ' + mainHeader.offsetHeight + 'px)';
+            mainHeaderMainBar_logos.forEach(img => {
+                img.style.maxHeight = '40px';
+            });
         }
     }
 

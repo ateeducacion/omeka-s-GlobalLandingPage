@@ -65,7 +65,7 @@ $navItems = $this->headerNavigation ?? $defaultNavItems;
 
 $siteTitle = (string) ($this->siteTitle ?? $this->translate('Global Landing Page'));
 $siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('A self-contained welcome experience for Omeka S.');
-$siteLogo = $this->siteLogo ?? null;
+$sitesLogos = $this->sitesLogos ?? null;
 ?>
 <?= $this->doctype(); ?>
 <html lang="<?= $this->escapeHtmlAttr($lang); ?>">
@@ -95,7 +95,7 @@ $siteLogo = $this->siteLogo ?? null;
         'navItems' => $navItems,
         'siteTitle' => $siteTitle,
         'siteSubtitle' => $siteSubtitle,
-        'siteLogo' => $siteLogo,
+        'sitesLogos' => $sitesLogos,
         'headerModifier' => $headerModifier,
     ]); ?>
 
