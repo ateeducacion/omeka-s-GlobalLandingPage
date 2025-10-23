@@ -157,7 +157,9 @@ class Module extends AbstractModule
         $form->setData($controller->params()->fromPost());
 
         if (!$form->isValid()) {
-            $controller->messenger()->addError(new Message('Unable to save settings: submitted data is invalid.')); // @translate
+            $controller->messenger()->addError(
+                new Message('Unable to save settings: submitted data is invalid.') // @translate
+            );
             return false;
         }
 

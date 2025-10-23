@@ -24,7 +24,9 @@ class ResourceTags extends AbstractHelper
 
         $tagsHtml = '';
 
-        if (is_array($resource_tags) && (in_array('resource_type', $resource_tags) || in_array('resource_class', $resource_tags))) {
+        if (is_array($resource_tags)
+                && (in_array('resource_type', $resource_tags) || in_array('resource_class', $resource_tags))
+            ) {
             $tagsHtml .= '<div class="resource-tags">';
 
             // Resource Type Tag ('Item', 'Item set', 'Media').
@@ -51,7 +53,11 @@ class ResourceTags extends AbstractHelper
                     if (array_key_exists($resourceName, $mapResourceName)) {
                         $tagColor = $this->getUniqueColorFromId($mapResourceName[$resourceName]['id'], 'pastel');
                         $tagLabel = $view->escapeHtml($view->translate($mapResourceName[$resourceName]['label']));
-                        $tagsHtml .= '<div class="resource-tag" style="background-color: ' . $tagColor . ';">' . $tagLabel . '</div>';
+                        $tagsHtml .= '<div class="resource-tag" style="background-color: '
+                                . $tagColor
+                                . ';">'
+                                . $tagLabel
+                                . '</div>';
                     }
                 }
             }
@@ -67,9 +73,12 @@ class ResourceTags extends AbstractHelper
                     $resourceClassId = $resourceClass->id();
 
                     if ($resourceClassId) {
-                        $tagColor = $this->getUniqueColorFromId((int) $resourceClassId + 10, 'pastel'); // Offset of 50 for Resource Types.
+                        $tagColor = $this->getUniqueColorFromId((int) $resourceClassId + 10, 'pastel');
                         $tagLabel = $view->escapeHtml($view->translate($resource->displayResourceClassLabel()));
-                        $tagsHtml .= '<div class="resource-tag" style="background-color: ' . $tagColor . ';">' . $tagLabel . '</div>';
+                        $tagsHtml .= '<div class="resource-tag" style="background-color: '
+                                    . $tagColor . ';">'
+                                    . $tagLabel
+                                    . '</div>';
                     }
                 }
             }
