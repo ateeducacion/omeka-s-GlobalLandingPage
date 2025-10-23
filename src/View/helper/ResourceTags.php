@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace GlobalLandingPage\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
@@ -25,13 +25,11 @@ class ResourceTags extends AbstractHelper
         $tagsHtml = '';
 
         if (is_array($resource_tags) && (in_array('resource_type', $resource_tags) || in_array('resource_class', $resource_tags))) {
-
             $tagsHtml .= '<div class="resource-tags">';
 
             // Resource Type Tag ('Item', 'Item set', 'Media').
 
             if (in_array('resource_type', $resource_tags)) {
-
                 $resourceName = $resource->resourceName();
 
                 if ($resourceName) {
@@ -63,7 +61,6 @@ class ResourceTags extends AbstractHelper
             // Resource Class Tag.
 
             if (in_array('resource_class', $resource_tags)) {
-                
                 $resourceClass = $resource->resourceClass();
 
                 if ($resourceClass) {
@@ -95,7 +92,7 @@ class ResourceTags extends AbstractHelper
         $n = crc32($n);
         $color = '';
 
-        switch($style) {
+        switch ($style) {
             case 'solid':
                 $n &= 0xffffffff;
                 $color = "#" . substr("000000" . dechex($n), -6);

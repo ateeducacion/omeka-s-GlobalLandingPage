@@ -60,6 +60,16 @@ class Module extends AbstractModule
         $settings = $services->get('Omeka\Settings');
         $enabled = (bool) $settings->get(self::SETTING_USE_CUSTOM, false);
 
+        if ($services->has('Omeka\Acl')) {
+            $acl = $services->get('Omeka\Acl');
+
+            if (!$acl->hasResource(Controller\LandingController::class)) {
+                $acl->addResource(Controller\LandingController::class);
+            }
+
+            $acl->allow(null, Controller\LandingController::class, 'index');
+        }
+
         $resolver = $services->has('ViewTemplateMapResolver')
             ? $services->get('ViewTemplateMapResolver')
             : null;
@@ -77,6 +87,7 @@ class Module extends AbstractModule
         $eventManager->attach(
             MvcEvent::EVENT_ROUTE,
             function (MvcEvent $routeEvent): void {
+
                 $request = $routeEvent->getRequest();
                 if (!$request instanceof HttpRequest) {
                     return;
@@ -87,6 +98,7 @@ class Module extends AbstractModule
                     return;
                 }
 
+                error_log("ENTRA AL HOME CUSTOM".get_class($routeEvent));
                 $routeMatch = $routeEvent->getRouteMatch();
                 if ($routeMatch === null) {
                     return;
@@ -113,7 +125,7 @@ class Module extends AbstractModule
 
                 $routeEvent->stopPropagation(true);
             },
-            1000
+            -100
         );
     }
 

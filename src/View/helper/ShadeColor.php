@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace GlobalLandingPage\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
