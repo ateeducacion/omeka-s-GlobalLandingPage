@@ -1,0 +1,135 @@
+<?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ * @var array $sites
+ * @var string $query
+ */
+
+$headline = $this->headline ?? $this->translate('Servicio Mediateca'); // @translate
+$lead = $this->lead ?? $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
+$primaryActionLabel = $this->primaryActionLabel ?? $this->translate('Browse Collections'); // @translate
+$primaryActionUrl = $this->primaryActionUrl ?? '#collections';
+$sitesLogos = [];
+$sitesLogos[] = $this->assetUrl('img/logo-mediateca.svg', 'GlobalLandingPage');
+$sitesLogos[] = $this->assetUrl('img/ate_logo.png', 'GlobalLandingPage');
+$sitesLogos[] = $this->assetUrl('img/logo-cauce.png', 'GlobalLandingPage');
+$heroImage = $this->heroImage ?? null;
+
+$layout = $this->layout();
+if ($layout) {
+    $layout->setVariable('siteTitle', $headline);
+    $layout->setVariable('siteSubtitle', $lead);
+    $layout->setVariable('sitesLogos', $sitesLogos);
+    $layout->setVariable('headerNavigation', [
+        [
+            'label' => $this->translate('Inicio'),
+            'url' => $this->url('globallandingpage', [], true),
+            'active' => false
+        ],
+        [
+            'label' => $this->translate('Explorar Canales'),
+            'url' => $this->url('globallandingpage-sites', [], true),
+            'active' => true
+        ],
+        [
+            'label' => $this->translate('Servicio Mediateca'),
+            'url' => 'https://www3.gobiernodecanarias.org/medusa/mediateca/', //$this->url('globallandingpage-sites', [], true),
+            'active' => false
+        ],
+    ]);
+}
+
+// Load Masonry and imagesLoaded libraries via CDN
+$this->headScript()->appendFile('https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
+$this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js');
+// Load custom Masonry initialization script
+$this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
+?>
+
+<section class="container" id="explore-sites" aria-labelledby="explore-sites-heading">
+    <h2 id="explore-sites-heading">
+        <?= $this->translate('Explorar Canales'); ?>
+    </h2>
+    
+    <div class="browse-controls">
+        <form action="<?= $this->url('globallandingpage-sites', [], true); ?>" method="get" class="search-form">
+            <div class="search-form__fields">
+                <label for="site-search" class="screen-reader-text">
+                    <?= $this->translate('Search sites by name'); ?>
+                </label>
+                <input 
+                    type="text" 
+                    id="site-search" 
+                    name="q" 
+                    value="<?= $this->escapeHtmlAttr($query); ?>"
+                    placeholder="<?= $this->escapeHtmlAttr($this->translate('Search sites...')); ?>"
+                    class="search-form__input"
+                >
+                <button type="submit" class="search-form__button">
+                    <?= $this->translate('Search'); ?>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <?php if ($query !== ''): ?>
+        <p class="search-results-info">
+            <?= sprintf(
+                $this->translate('Search results for: "%s"'),
+                $this->escapeHtml($query)
+            ); ?>
+            <a href="<?= $this->url('globallandingpage-sites', [], true); ?>">
+                <?= $this->translate('Clear search'); ?>
+            </a>
+        </p>
+    <?php endif; ?>
+    
+    <?php if (!empty($sites)): ?>
+        <div class="resource-grid" id="sites-grid">
+            <?php foreach ($sites as $site): ?>
+                <?php
+                $siteSlug = method_exists($site, 'slug') ? $site->slug() : null;
+                $siteUrl = method_exists($site, 'siteUrl')
+                    ? $site->siteUrl()
+                    : ($siteSlug ? $this->url('site', ['site-slug' => $siteSlug]) : '#');
+                $siteTitle = method_exists($site, 'title') ? $site->title() : '';
+                $thumbnailUrl = method_exists($site, 'thumbnailDisplayUrl')
+                    ? $site->thumbnailDisplayUrl('medium')
+                    : null;
+                $summary = method_exists($site, 'summary') ? (string) $site->summary() : '';
+                ?>
+                <article class="resource">
+                    <a href="<?= $this->escapeHtmlAttr($siteUrl); ?>">
+                        <?php if ($thumbnailUrl): ?>
+                            <div class="resource__thumbnail">
+                                <img 
+                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>" 
+                                    alt="<?= $this->escapeHtmlAttr($siteTitle); ?>"
+                                    loading="lazy"
+                                >
+                            </div>
+                        <?php else: ?>
+                            <div class="resource__thumbnail resource__thumbnail--placeholder">
+                                <span class="resource__thumbnail-icon">🏛️</span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="resource__content">
+                            <h3 class="resource__title"><?= $this->escapeHtml($siteTitle); ?></h3>
+                            <?php if ($summary !== ''): ?>
+                                <div class="resource__meta">
+                                    <p><?= $this->escapeHtml(mb_substr($summary, 0, 120)) . (mb_strlen($summary) > 120 ? '...' : ''); ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <p class="no-results">
+            <?= $query !== '' 
+                ? $this->translate('No sites found matching your search.') 
+                : $this->translate('No sites available yet.'); ?>
+        </p>
+    <?php endif; ?>
+</section>

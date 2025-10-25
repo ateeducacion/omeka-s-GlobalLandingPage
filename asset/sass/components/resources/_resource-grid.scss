@@ -9,7 +9,32 @@
         display: block;
         clear: both;
     }
-
+    
+    &#featured-sites-grid,
+    &#sites-grid {
+    // # the & combines with #featured-sites-grid → .resource-grid#featured-sites-grid
+        .resource {
+            height: 150px;
+            a {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                text-decoration: none;
+                color: inherit;
+                height: 100%;
+            }
+            &__thumbnail {
+                width: 40%;
+                height: 150px;
+                img {
+                    max-height: 150px;
+                    object-fit: contain;
+                    width: 100%;
+                    background-color: #FFF;
+                }
+            }
+        }
+    }
     .resource {
         background-color: $color__white;
         border: 1px solid $color__hr;
@@ -123,4 +148,5 @@
             color: #2c5282;
         }
     }
+    
 }

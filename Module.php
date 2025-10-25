@@ -67,7 +67,20 @@ class Module extends AbstractModule
                 $acl->addResource(Controller\LandingController::class);
             }
 
-            $acl->allow(null, Controller\LandingController::class, 'index');
+            if (!$acl->hasResource(Controller\SiteController::class)) {
+                $acl->addResource(Controller\SiteController::class);
+            }
+
+            $acl->allow(
+                null, 
+                Controller\LandingController::class, 
+                'index'
+            );
+            $acl->allow(
+                null, 
+                Controller\SiteController::class, 
+                'explore'
+            );
         }
 
         $resolver = $services->has('ViewTemplateMapResolver')
