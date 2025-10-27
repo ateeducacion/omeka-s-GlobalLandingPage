@@ -51,7 +51,7 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
         <?= $this->translate('Explorar Canales'); ?>
     </h5>
     
-    <div class="browse-controls">
+    <div class="browse-controls" style="justify-content: flex-start">
         <form action="<?= $this->url('globallandingpage-sites', [], true); ?>" method="get" class="search-form">
             <div class="search-form__fields">
                 <label for="site-search" class="screen-reader-text">
@@ -70,19 +70,20 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
                 </button>
             </div>
         </form>
+        <?php if ($query !== ''): ?>
+            <p class="search-results-info">
+                <?= sprintf(
+                    $this->translate('Search results for: "%s"'),
+                    $this->escapeHtml($query)
+                ); ?>
+                <a href="<?= $this->url('globallandingpage-sites', [], true); ?>">
+                    <?= $this->translate('Clear search'); ?>
+                </a>
+            </p>
+        <?php endif; ?>
     </div>
     
-    <?php if ($query !== ''): ?>
-        <p class="search-results-info">
-            <?= sprintf(
-                $this->translate('Search results for: "%s"'),
-                $this->escapeHtml($query)
-            ); ?>
-            <a href="<?= $this->url('globallandingpage-sites', [], true); ?>">
-                <?= $this->translate('Clear search'); ?>
-            </a>
-        </p>
-    <?php endif; ?>
+
     
     <?php if (!empty($sites)): ?>
         <div class="resource-grid" id="sites-grid">
