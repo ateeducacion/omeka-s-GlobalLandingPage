@@ -15,7 +15,6 @@ class LandingController extends AbstractActionController
             $layout->setTemplate('global-landing-page/layout');
         }
 
-        // Fetch 10 most recent items
         $recentItems = [];
         try {
             $response = $this->api()->search('items', [
@@ -56,7 +55,6 @@ class LandingController extends AbstractActionController
             'primaryActionLabel' => 'Explore Collections', // @translate
             'primaryActionUrl' => '#collections',
             'recentItems' => $recentItems,
-            'featuredSites' => $featuredSites,
         ]);
 
         $viewModel->setTemplate('omeka/index/index');

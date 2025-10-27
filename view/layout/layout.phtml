@@ -24,29 +24,35 @@ $this->headLink()->appendStylesheet($this->assetUrl('css/style.css', 'GlobalLand
 $this->headScript()->appendFile($this->assetUrl('js/navigation.js', 'GlobalLandingPage'));
 $this->headScript()->appendFile($this->assetUrl('js/script.js', 'GlobalLandingPage'));
 
-$colorDefaults = [
-    'primary_color' => '#e77f11',
-    'secondary_color' => '#394f68',
-    'accent_color' => '#394f68',
-];
+$primaryColor = $this->setting(
+    \GlobalLandingPage\Module::SETTING_PRIMARY_COLOR,
+    \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_PRIMARY_COLOR]
+);
+$secondaryColor = $this->setting(
+    \GlobalLandingPage\Module::SETTING_SECONDARY_COLOR,
+    \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_SECONDARY_COLOR]
+);
+$accentColor = $this->setting(
+    \GlobalLandingPage\Module::SETTING_ACCENT_COLOR,
+    \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_ACCENT_COLOR]
+);
 
-$settingsFile = dirname(__DIR__, 2) . '/config/settings.ini';
-if (is_readable($settingsFile)) {
-    $settingsData = @parse_ini_file($settingsFile, true, INI_SCANNER_RAW);
-    if (is_array($settingsData)) {
-        $colorSection = $settingsData['site_settings'] ?? $settingsData['settings'] ?? [];
-        foreach ($colorDefaults as $colorKey => $defaultValue) {
-            $value = $colorSection[$colorKey . '.value'] ?? $colorSection[$colorKey . '.default'] ?? null;
-            if (is_string($value) && $value !== '') {
-                $colorDefaults[$colorKey] = $value;
-            }
-        }
-    }
+if (!is_string($primaryColor) || $primaryColor === '') {
+    $primaryColor = \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_PRIMARY_COLOR];
 }
 
-$primaryColor = (string) $colorDefaults['primary_color'];
-$secondaryColor = (string) $colorDefaults['secondary_color'];
-$accentColor = (string) $colorDefaults['accent_color'];
+if (!is_string($secondaryColor) || $secondaryColor === '') {
+    $secondaryColor = \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_SECONDARY_COLOR];
+}
+
+if (!is_string($accentColor) || $accentColor === '') {
+    $accentColor = \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_ACCENT_COLOR];
+}
+
+$footerHtml = $this->setting(\GlobalLandingPage\Module::SETTING_FOOTER_HTML, '');
+if (!is_string($footerHtml)) {
+    $footerHtml = '';
+}
 
 $headerModifier = (string) ($this->headerModifier ?? 'main-header--inline');
 $bodyClass = trim(sprintf(
@@ -111,7 +117,13 @@ $sitesLogos = $this->sitesLogos ?? null;
         <?= $this->content; ?>
     </main>
 
-    <?= $this->partial('global-landing-page/common/footer'); ?>
+    <?php if ($footerHtml !== ''): ?>
+        <footer class="global-footer">
+            <?= $footerHtml ?>
+        </footer>
+    <?php else: ?>
+        <?= $this->partial('global-landing-page/common/footer'); ?>
+    <?php endif; ?>
 
     <?= $this->inlineScript(); ?>
 </body>

@@ -11,4 +11,5 @@ use Laminas\View\Renderer\PhpRenderer;
  */
 
 $form->prepare();
+$this->headScript()->appendFile($this->assetUrl('js/admin-config.js', 'GlobalLandingPage'));
 echo $this->formCollection($form, false);

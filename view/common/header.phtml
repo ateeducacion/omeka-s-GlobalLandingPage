@@ -3,10 +3,10 @@
  * @var Laminas\View\Renderer\PhpRenderer $this
  */
 
-// Get navigation items from layout or use defaults
 $navItems = [];
-if (isset($this->navItems) && is_iterable($this->navItems)) {
-    foreach ($this->navItems as $item) {
+$rawNavItems = $this->navItems ?? [];
+if (is_iterable($rawNavItems)) {
+    foreach ($rawNavItems as $item) {
         if (!is_array($item)) {
             continue;
         }
@@ -22,23 +22,18 @@ if (isset($this->navItems) && is_iterable($this->navItems)) {
         ];
     }
 }
+
 if ($navItems === []) {
-    // Default navigation items
     $navItems = [
         [
             'label' => $this->translate('Inicio'),
             'url' => $this->url('globallandingpage', [], true),
-            'active' => true
+            'active' => true,
         ],
         [
             'label' => $this->translate('Explorar Canales'),
             'url' => $this->url('globallandingpage-sites', [], true),
-            'active' => false
-        ],
-        [
-            'label' => $this->translate('Servicio Mediateca'),
-            'url' => 'https://www3.gobiernodecanarias.org/medusa/mediateca/', //$this->url('globallandingpage-sites', [], true),
-            'active' => false
+            'active' => false,
         ],
     ];
 }
@@ -46,45 +41,38 @@ if ($navItems === []) {
 $headerModifier = trim((string) ($this->headerModifier ?? 'main-header--inline'));
 $siteTitle = isset($this->siteTitle) ? (string) $this->siteTitle : $this->translate('Global Landing Page');
 $siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('Repositorio de medios audiovisuales educativos.');
-$sitesLogos = $this->sitesLogos ?? null;
 $homeAnchor = $this->url('globallandingpage', [], true);
-$logoHtml = '';
 
-if (is_iterable($sitesLogos)) {
-    $logoFragments = [];
-    foreach ($sitesLogos as $logo) {
+$logoEntries = [];
+$rawLogos = $this->sitesLogos ?? [];
+if (is_iterable($rawLogos)) {
+    foreach ($rawLogos as $logo) {
+        $source = '';
+        $alt = $siteTitle;
         if (is_array($logo)) {
-            $src = isset($logo['src']) ? (string) $logo['src'] : '';
-            if ($src === '') {
-                continue;
+            $source = isset($logo['src']) ? (string) $logo['src'] : '';
+            if (isset($logo['alt']) && $logo['alt'] !== '') {
+                $alt = (string) $logo['alt'];
             }
-            $alt = isset($logo['alt']) ? (string) $logo['alt'] : $siteTitle;
         } elseif (is_string($logo)) {
-            $src = $logo;
-            if ($src === '') {
-                continue;
-            }
-            $alt = $siteTitle;
-        } else {
+            $source = $logo;
+        }
+
+        if ($source === '') {
             continue;
         }
 
-        $logoFragments[] = sprintf(
-            '<img src="%s" alt="%s">',
-            $this->escapeHtmlAttr($src),
-            $this->escapeHtmlAttr($alt !== '' ? $alt : $siteTitle)
-        );
-    }
+        if (
+            !preg_match('~^(?:https?:)?//~i', $source)
+        ) {
+            $source = $this->assetUrl('img/' . basename($source), 'GlobalLandingPage');
+        }
 
-    if ($logoFragments !== []) {
-        $logoHtml = implode("\n", $logoFragments);
+        $logoEntries[] = [
+            'src' => $source,
+            'alt' => $alt !== '' ? $alt : $siteTitle,
+        ];
     }
-} elseif (is_string($sitesLogos) && $sitesLogos !== '') {
-    $logoHtml = sprintf(
-        '<img src="%s" alt="%s">',
-        $this->escapeHtmlAttr($sitesLogos),
-        $this->escapeHtmlAttr($siteTitle)
-    );
 }
 
 $this->inlineScript()->appendScript(sprintf(
@@ -111,8 +99,13 @@ $this->inlineScript()->appendScript(sprintf(
     <div class="main-header__main-bar container">
         <div class="main-header__site-title">
             <a href="<?= $this->escapeHtmlAttr($homeAnchor); ?>">
-                <?php if ($logoHtml !== ''): ?>
-                    <?= $logoHtml; ?>
+                <?php if ($logoEntries !== []): ?>
+                    <?php foreach ($logoEntries as $logo): ?>
+                        <img
+                            src="<?= $this->escapeHtmlAttr($logo['src']); ?>"
+                            alt="<?= $this->escapeHtmlAttr($logo['alt']); ?>"
+                        >
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <?= $this->escapeHtml($siteTitle); ?>
                 <?php endif; ?>

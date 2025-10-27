@@ -6,41 +6,80 @@
  * @var string|null $primaryActionLabel
  * @var string|null $primaryActionUrl
  * @var array $recentItems
- * @var array $featuredSites
  */
 
 $headline = $this->headline ?? $this->translate('Servicio Mediateca'); // @translate
 $lead = $this->lead ?? $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
 $primaryActionLabel = $this->primaryActionLabel ?? $this->translate('Browse Collections'); // @translate
 $primaryActionUrl = $this->primaryActionUrl ?? '#collections';
-$sitesLogos = [];
-$sitesLogos[] = $this->assetUrl('img/logo-mediateca.svg', 'GlobalLandingPage');
-$sitesLogos[] = $this->assetUrl('img/ate_logo.png', 'GlobalLandingPage');
-$sitesLogos[] = $this->assetUrl('img/logo-cauce.png', 'GlobalLandingPage');
 $heroImage = $this->heroImage ?? null;
+
+$featuredSites = [];
+$featuredSiteIds = $this->setting(\GlobalLandingPage\Module::SETTING_FEATURED_SITES, []);
+if (is_array($featuredSiteIds)) {
+    foreach ($featuredSiteIds as $siteId) {
+        $siteId = (int) $siteId;
+        if ($siteId <= 0) {
+            continue;
+        }
+        try {
+            $featuredSites[] = $this->api()->read('sites', $siteId)->getContent();
+        } catch (\Exception $exception) {
+            continue;
+        }
+    }
+}
+
+$baseSiteSlug = (string) $this->setting(\GlobalLandingPage\Module::SETTING_BASE_SITE, '');
+$navPagesSetting = $this->setting(\GlobalLandingPage\Module::SETTING_NAV_PAGES, []);
+if (!is_array($navPagesSetting)) {
+    $navPagesSetting = [];
+}
+
+$navItems = [
+    [
+        'label' => $this->translate('Inicio'),
+        'url' => $this->url('globallandingpage', [], true),
+        'active' => true,
+    ],
+    [
+        'label' => $this->translate('Explorar Canales'),
+        'url' => $this->url('globallandingpage-sites', [], true),
+        'active' => false,
+    ],
+];
+
+if ($baseSiteSlug !== '' && $navPagesSetting !== []) {
+    foreach ($navPagesSetting as $slug => $title) {
+        if (!is_string($slug) || $slug === '') {
+            continue;
+        }
+        if (!is_string($title) || $title === '') {
+            $title = $slug;
+        }
+        $navItems[] = [
+            'label' => $title,
+            'url' => $this->url(
+                'site/page',
+                ['site-slug' => $baseSiteSlug, 'page-slug' => $slug],
+                ['force_canonical' => true]
+            ),
+            'active' => false,
+        ];
+    }
+}
+
+$siteLogos = $this->setting(\GlobalLandingPage\Module::SETTING_LOGOS, []);
+if (!is_array($siteLogos) || $siteLogos === []) {
+    $siteLogos = \GlobalLandingPage\Module::DEFAULT_LOGOS;
+}
 
 $layout = $this->layout();
 if ($layout) {
     $layout->setVariable('siteTitle', $headline);
     $layout->setVariable('siteSubtitle', $lead);
-    $layout->setVariable('sitesLogos', $sitesLogos);
-    $layout->setVariable('headerNavigation', [
-        [
-            'label' => $this->translate('Inicio'),
-            'url' => $this->url('globallandingpage', [], true),
-            'active' => true
-        ],
-        [
-            'label' => $this->translate('Explorar Canales'),
-            'url' => $this->url('globallandingpage-sites', [], true),
-            'active' => false
-        ],
-        [
-            'label' => $this->translate('Servicio Mediateca'),
-            'url' => 'https://www3.gobiernodecanarias.org/medusa/mediateca/', //$this->url('globallandingpage-sites', [], true),
-            'active' => false
-        ],
-    ]);
+    $layout->setVariable('sitesLogos', $siteLogos);
+    $layout->setVariable('headerNavigation', $navItems);
 }
 
 // Load Masonry and imagesLoaded libraries via CDN
@@ -53,7 +92,7 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
 <!-- Featured Sites Section -->
 <section class="container" id="featured-sites" aria-labelledby="featured-sites-heading">
     <h5 class="title" id="featured-sites-heading">
-        <?= $this->translate('Canales de áreas, proyectos y redes'); ?>
+        <?= $this->translate('Canales de &aacute;reas, proyectos y redes'); ?>
     </h5>
     
     <?php if (!empty($featuredSites)): ?>
