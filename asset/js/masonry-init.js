@@ -49,7 +49,7 @@
         
         // Initialize Featured Sites grid
         var featuredSitesGrid = initMasonryGrid('#featured-sites-grid');
-        
+        var featuredSitesGrid = initMasonryGrid('#sites-grid');
         // Log initialization status
         if (recentItemsGrid) {
             console.log('Recent Items Masonry grid initialized');

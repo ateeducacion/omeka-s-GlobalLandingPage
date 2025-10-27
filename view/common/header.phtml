@@ -3,6 +3,7 @@
  * @var Laminas\View\Renderer\PhpRenderer $this
  */
 
+// Get navigation items from layout or use defaults
 $navItems = [];
 if (isset($this->navItems) && is_iterable($this->navItems)) {
     foreach ($this->navItems as $item) {
@@ -22,11 +23,23 @@ if (isset($this->navItems) && is_iterable($this->navItems)) {
     }
 }
 if ($navItems === []) {
+    // Default navigation items
     $navItems = [
-        ['label' => $this->translate('Home'), 'url' => '#hero', 'active' => true],
-        ['label' => $this->translate('Collections'), 'url' => '#collections', 'active' => false],
-        ['label' => $this->translate('About'), 'url' => '#about', 'active' => false],
-        ['label' => $this->translate('Contact'), 'url' => '#contact', 'active' => false],
+        [
+            'label' => $this->translate('Inicio'),
+            'url' => $this->url('globallandingpage', [], true),
+            'active' => true
+        ],
+        [
+            'label' => $this->translate('Explorar Canales'),
+            'url' => $this->url('globallandingpage-sites', [], true),
+            'active' => false
+        ],
+        [
+            'label' => $this->translate('Servicio Mediateca'),
+            'url' => 'https://www3.gobiernodecanarias.org/medusa/mediateca/', //$this->url('globallandingpage-sites', [], true),
+            'active' => false
+        ],
     ];
 }
 
@@ -34,7 +47,7 @@ $headerModifier = trim((string) ($this->headerModifier ?? 'main-header--inline')
 $siteTitle = isset($this->siteTitle) ? (string) $this->siteTitle : $this->translate('Global Landing Page');
 $siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('Repositorio de medios audiovisuales educativos.');
 $sitesLogos = $this->sitesLogos ?? null;
-$homeAnchor = '#hero';
+$homeAnchor = $this->url('globallandingpage', [], true);
 $logoHtml = '';
 
 if (is_iterable($sitesLogos)) {

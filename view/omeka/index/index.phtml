@@ -25,10 +25,21 @@ if ($layout) {
     $layout->setVariable('siteSubtitle', $lead);
     $layout->setVariable('sitesLogos', $sitesLogos);
     $layout->setVariable('headerNavigation', [
-        ['label' => $this->translate('Home'), 'url' => '#hero', 'active' => true],
-        ['label' => $this->translate('Recent Items'), 'url' => '#recent-items', 'active' => false],
-        ['label' => $this->translate('Featured Sites'), 'url' => '#featured-sites', 'active' => false],
-        ['label' => $this->translate('Contact'), 'url' => '#contact', 'active' => false],
+        [
+            'label' => $this->translate('Inicio'),
+            'url' => $this->url('globallandingpage', [], true),
+            'active' => true
+        ],
+        [
+            'label' => $this->translate('Explorar Canales'),
+            'url' => $this->url('globallandingpage-sites', [], true),
+            'active' => false
+        ],
+        [
+            'label' => $this->translate('Servicio Mediateca'),
+            'url' => 'https://www3.gobiernodecanarias.org/medusa/mediateca/', //$this->url('globallandingpage-sites', [], true),
+            'active' => false
+        ],
     ]);
 }
 
@@ -39,73 +50,11 @@ $this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.p
 $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
 ?>
 
-<!-- Recent Items Section -->
-<section class="container" id="recent-items" aria-labelledby="recent-items-heading">
-    <h2 id="recent-items-heading">
-        <?= $this->translate('Recent Items'); ?>
-    </h2>
-    <p>
-        <?= $this->translate('Explore the 10 most recently added items to our collection.'); ?>
-    </p>
-    
-    <?php if (!empty($recentItems)): ?>
-        <div class="resource-grid" id="recent-items-grid">
-            <?php foreach ($recentItems as $item): ?>
-                <?php
-                $itemUrl = $item->url();
-                $itemTitle = $item->displayTitle();
-                $thumbnailUrl = null;
-                
-                // Get primary media thumbnail
-                $primaryMedia = $item->primaryMedia();
-                if ($primaryMedia) {
-                    $thumbnailUrl = $primaryMedia->thumbnailUrl('large');
-                }
-                
-                // Get resource class label
-                $resourceClass = $item->resourceClass();
-                $resourceClassLabel = $resourceClass ? $resourceClass->label() : null;
-                ?>
-                <article class="resource">
-                    <a href="<?= $this->escapeHtmlAttr($itemUrl); ?>">
-                        <?php if ($thumbnailUrl): ?>
-                            <div class="resource__thumbnail">
-                                <img 
-                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>" 
-                                    alt="<?= $this->escapeHtmlAttr($itemTitle); ?>"
-                                    loading="lazy"
-                                >
-                            </div>
-                        <?php else: ?>
-                            <div class="resource__thumbnail resource__thumbnail--placeholder">
-                                <span class="resource__thumbnail-icon">📄</span>
-                            </div>
-                        <?php endif; ?>
-                        <div class="resource__content">
-                            <h3 class="resource__title"><?= $this->escapeHtml($itemTitle); ?></h3>
-                            <?php if ($resourceClassLabel): ?>
-                                <div class="resource__meta">
-                                    <span class="resource__type"><?= $this->escapeHtml($resourceClassLabel); ?></span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </a>
-                </article>
-            <?php endforeach; ?>
-        </div>
-    <?php else: ?>
-        <p><?= $this->translate('No items available yet.'); ?></p>
-    <?php endif; ?>
-</section>
-
 <!-- Featured Sites Section -->
 <section class="container" id="featured-sites" aria-labelledby="featured-sites-heading">
-    <h2 id="featured-sites-heading">
-        <?= $this->translate('Featured Sites'); ?>
-    </h2>
-    <p>
-        <?= $this->translate('Browse our featured thematic collections.'); ?>
-    </p>
+    <h5 class="title" id="featured-sites-heading">
+        <?= $this->translate('Canales de áreas, proyectos y redes'); ?>
+    </h5>
     
     <?php if (!empty($featuredSites)): ?>
         <div class="resource-grid" id="featured-sites-grid">
@@ -152,3 +101,76 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
         <p><?= $this->translate('No featured sites available yet.'); ?></p>
     <?php endif; ?>
 </section>
+
+<!-- Recent Items Section -->
+<section class="container" id="recent-items" aria-labelledby="recent-items-heading" style="margin-top: 3rem;">
+    <h5 class="title" id="recent-items-heading">
+        <?= $this->translate('Entradas recientes'); ?>
+    </h5>
+    
+    <?php if (!empty($recentItems)): ?>
+        <div class="resource-grid" id="recent-items-grid">
+            <?php foreach ($recentItems as $item): ?>
+                <?php
+                $itemTitle = $item->displayTitle();
+                $thumbnailUrl = null;
+                
+                // Get primary media thumbnail
+                $primaryMedia = $item->primaryMedia();
+                if ($primaryMedia) {
+                    $thumbnailUrl = $primaryMedia->thumbnailUrl('large');
+                }
+                
+                // Get resource class label
+                $resourceClass = $item->resourceClass();
+                $resourceClassLabel = $resourceClass ? $resourceClass->label() : null;
+                
+                // Get item's associated sites and build proper URL
+                $itemUrl = '#';
+                try {
+                    $itemSites = $item->sites();
+                    if (!empty($itemSites)) {
+                        // Take the first site
+                        $firstSite = reset($itemSites);
+                        $siteSlug = method_exists($firstSite, 'slug') ? $firstSite->slug() : null;
+                        if ($siteSlug) {
+                            $itemUrl=$item->siteUrl($siteSlug);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // If unable to get sites, fallback to default item URL
+                    $itemUrl = $item->url();
+                }
+                ?>
+                <article class="resource">
+                    <a href="<?= $this->escapeHtmlAttr($itemUrl); ?>">
+                        <?php if ($thumbnailUrl): ?>
+                            <div class="resource__thumbnail">
+                                <img 
+                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>" 
+                                    alt="<?= $this->escapeHtmlAttr($itemTitle); ?>"
+                                    loading="lazy"
+                                >
+                            </div>
+                        <?php else: ?>
+                            <div class="resource__thumbnail resource__thumbnail--placeholder">
+                                <span class="resource__thumbnail-icon">📄</span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="resource__content">
+                            <h3 class="resource__title"><?= $this->escapeHtml($itemTitle); ?></h3>
+                            <?php if ($resourceClassLabel): ?>
+                                <div class="resource__meta">
+                                    <span class="resource__type"><?= $this->escapeHtml($resourceClassLabel); ?></span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <p><?= $this->translate('No items available yet.'); ?></p>
+    <?php endif; ?>
+</section>
+

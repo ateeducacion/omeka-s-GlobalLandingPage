@@ -22,13 +22,16 @@ class LandingController extends AbstractActionController
                 'sort_by' => 'created',
                 'sort_order' => 'desc',
                 'limit' => 8,
+                'in_sites' => true
             ]);
             $recentItems = $response->getContent();
         } catch (\Exception $exception) {
             $recentItems = [];
         }
 
-        // Fetch featured sites (sites with names beginning with 'Área')
+        // Fetch featured sites
+        // TODO: Add a settings field to select featured sites
+        $featuredSitesIds = [];
         $featuredSites = [];
         try {
             $response = $this->api()->search('sites', [
@@ -39,10 +42,9 @@ class LandingController extends AbstractActionController
             
             // Filter sites that begin with 'Área'
             foreach ($allSites as $site) {
-                $title = method_exists($site, 'title') ? $site->title() : '';
-                if (stripos($title, 'Área') === 0) {
+                //if (in_array($site->Id(),$featuredSitesIds)) {
                     $featuredSites[] = $site;
-                }
+               // }
             }
         } catch (\Exception $exception) {
             $featuredSites = [];

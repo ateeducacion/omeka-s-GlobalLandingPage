@@ -24,7 +24,7 @@ class ModuleConfigTest extends TestCase
 
         $route = $this->config['router']['routes']['globallandingpage'];
         $this->assertSame('Laminas\Router\Http\Literal', $route['type']);
-        $this->assertSame('/global-landing', $route['options']['route']);
+        $this->assertSame('/', $route['options']['route']);
         $this->assertSame(LandingController::class, $route['options']['defaults']['controller']);
         $this->assertSame('index', $route['options']['defaults']['action']);
     }

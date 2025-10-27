@@ -11,10 +11,21 @@ return [
             'globallandingpage' => [
                 'type' => 'Laminas\Router\Http\Literal',
                 'options' => [
-                    'route' => '/global-landing',
+                    'route' => '/',
                     'defaults' => [
                         'controller' => Controller\LandingController::class,
                         'action' => 'index',
+                    ],
+                ],
+                'may_terminate' => true,
+            ],
+            'globallandingpage-sites' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route' => '/sites',
+                    'defaults' => [
+                        'controller' => Controller\SiteController::class,
+                        'action' => 'explore',
                     ],
                 ],
                 'may_terminate' => true,
@@ -24,6 +35,7 @@ return [
     'controllers' => [
         'factories' => [
             Controller\LandingController::class => InvokableFactory::class,
+            Controller\SiteController::class => InvokableFactory::class,
         ],
     ],
     'view_helpers' => [

@@ -9,7 +9,52 @@
         display: block;
         clear: both;
     }
+    
+    &#featured-sites-grid,
+    &#sites-grid {
+    // # the & combines with #featured-sites-grid → .resource-grid#featured-sites-grid
+        .resource {
+            height: 120px;
+            // Responsive widths for Masonry
+            width: 100%;
+            
+            @media (min-width: 640px) {
+                width: calc(33.333% - 14px);
+            }
+            
+            @media (min-width: 960px) {
+                width: calc(25% - 15px);
+            }
+            
+            @media (min-width: 1280px) {
+                width: calc(16.666% - 17px);
+            }
+            a {
+                display: flex;
+                align-items: center;
+                //justify-content: space-between;
+                text-decoration: none;
+                color: inherit;
+                height: 100%;
+            }
+            &__thumbnail {
+                width: 35%;
+                height: 110px;
+                margin-left: 8px;
+                img {
+                    max-height: 110px;
+                    object-fit: contain;
+                    width: 100%;
+                    background-color: #FFF;
+                }
+            }
 
+            &__title {
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+            }
+        }
+    }
     .resource {
         background-color: $color__white;
         border: 1px solid $color__hr;
@@ -123,4 +168,5 @@
             color: #2c5282;
         }
     }
+    
 }
