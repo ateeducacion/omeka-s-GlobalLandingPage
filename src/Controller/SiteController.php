@@ -26,13 +26,17 @@ class SiteController extends AbstractActionController
                 'sort_order' => 'asc',
             ];
 
-            // If search query exists, filter by title
-            if ($query !== '') {
-                $searchParams['title'] = $query;
-            }
-
             $response = $this->api()->search('sites', $searchParams);
             $sites = $response->getContent();
+
+            if ($query !== '') {
+                $lowerQuery = mb_strtolower($query);
+                $sites = array_values(array_filter($sites, static function ($site) use ($lowerQuery) {
+                    $title = $site !== null ? mb_strtolower((string) $site->title()) : '';
+                    $slug = $site !== null ? mb_strtolower((string) $site->slug()) : '';
+                    return mb_strpos($title, $lowerQuery) !== false || mb_strpos($slug, $lowerQuery) !== false;
+                }));
+            }
         } catch (\Exception $exception) {
             $sites = [];
         }

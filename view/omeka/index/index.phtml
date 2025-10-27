@@ -52,12 +52,9 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
 
 <!-- Featured Sites Section -->
 <section class="container" id="featured-sites" aria-labelledby="featured-sites-heading">
-    <h2 id="featured-sites-heading">
-        <?= $this->translate('Canales destacados'); ?>
-    </h2>
-    <p>
-        <?= $this->translate('Browse our featured thematic collections.'); ?>
-    </p>
+    <h5 class="title" id="featured-sites-heading">
+        <?= $this->translate('Canales de áreas, proyectos y redes'); ?>
+    </h5>
     
     <?php if (!empty($featuredSites)): ?>
         <div class="resource-grid" id="featured-sites-grid">
@@ -107,9 +104,9 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
 
 <!-- Recent Items Section -->
 <section class="container" id="recent-items" aria-labelledby="recent-items-heading">
-    <h3 id="recent-items-heading">
+    <h5 class="title" id="recent-items-heading">
         <?= $this->translate('Entradas recientes'); ?>
-    </h3>
+    </h5>
     
     <?php if (!empty($recentItems)): ?>
         <div class="resource-grid" id="recent-items-grid">

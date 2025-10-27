@@ -743,6 +743,7 @@ table td {
   padding-bottom: 1rem;
   position: relative;
   width: 100%;
+  text-transform: uppercase;
 }
 .title::after {
   display: block;
@@ -3429,14 +3430,14 @@ body.menu-drawer-toggled {
 .resource-grid#featured-sites-grid .resource a, .resource-grid#sites-grid .resource a {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   text-decoration: none;
   color: inherit;
   height: 100%;
 }
 .resource-grid#featured-sites-grid .resource__thumbnail, .resource-grid#sites-grid .resource__thumbnail {
-  width: 40%;
+  width: 35%;
   height: 150px;
+  margin-left: 8px;
 }
 .resource-grid#featured-sites-grid .resource__thumbnail img, .resource-grid#sites-grid .resource__thumbnail img {
   max-height: 150px;

@@ -47,9 +47,9 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
 ?>
 
 <section class="container" id="explore-sites" aria-labelledby="explore-sites-heading">
-    <h2 id="explore-sites-heading">
+    <h5 class="title" id="explore-sites-heading">
         <?= $this->translate('Explorar Canales'); ?>
-    </h2>
+    </h5>
     
     <div class="browse-controls">
         <form action="<?= $this->url('globallandingpage-sites', [], true); ?>" method="get" class="search-form">
