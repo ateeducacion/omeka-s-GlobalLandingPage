@@ -56,10 +56,7 @@ $bodyClass = trim(sprintf(
 ));
 
 $defaultNavItems = [
-    ['label' => $this->translate('Home'), 'url' => '#hero', 'active' => true],
-    ['label' => $this->translate('Collections'), 'url' => '#collections', 'active' => false],
-    ['label' => $this->translate('About'), 'url' => '#about', 'active' => false],
-    ['label' => $this->translate('Contact'), 'url' => '#contact', 'active' => false],
+    ['label' => $this->translate('Home'), 'url' => $this->url('globallandingpage', [], true), 'active' => true],
 ];
 $navItems = $this->headerNavigation ?? $defaultNavItems;
 
