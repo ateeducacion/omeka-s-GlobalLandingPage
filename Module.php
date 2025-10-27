@@ -72,13 +72,13 @@ class Module extends AbstractModule
             }
 
             $acl->allow(
-                null, 
-                Controller\LandingController::class, 
+                null,
+                Controller\LandingController::class,
                 'index'
             );
             $acl->allow(
-                null, 
-                Controller\SiteController::class, 
+                null,
+                Controller\SiteController::class,
                 'explore'
             );
         }
