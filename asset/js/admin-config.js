@@ -69,7 +69,7 @@
             url.searchParams.set('site_id', String(siteId));
             url.searchParams.set('sort_by', 'position');
             url.searchParams.set('sort_order', 'asc');
-            url.searchParams.set('limit', '0');
+            url.searchParams.set('per_page', '0');
 
             const response = await window.fetch(url.toString(), {
                 credentials: 'same-origin',

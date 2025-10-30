@@ -92,13 +92,16 @@ class ConfigForm extends Form
             'options' => [
                 'label' => 'Navigation pages', // @translate
                 'info' => 'Pick the pages from the selected site that should appear in the global header navigation.', // @translate
+                'empty_option' => '',
                 'value_options' => [],
+                'disable_inarray_validator' => true,
             ],
             'attributes' => [
                 'id' => 'globallandingpage_nav_pages',
                 'multiple' => true,
                 'required' => false,
-                'size' => 10,
+                'class' => 'chosen-select',
+                'data-placeholder' => 'Select pages', // @translate
             ],
         ]);
 
@@ -157,7 +160,7 @@ class ConfigForm extends Form
                         'site_id' => $siteId,
                         'sort_by' => 'position',
                         'sort_order' => 'asc',
-                        'limit' => 0,
+                        'per_page' => 0,
                     ]
                 );
                 $pages = $response->getContent();
