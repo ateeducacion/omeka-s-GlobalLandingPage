@@ -36,6 +36,9 @@ class ConfigForm extends Form
     {
         parent::init();
 
+        $this->resolveApiManager();
+        $featuredSiteOptions = $this->buildFeaturedSiteOptions();
+
         $this->setName('globallandingpage-config');
         $this->setAttribute('id', 'globallandingpage-config');
         $this->setAttribute('method', 'post');
@@ -57,15 +60,21 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'globallandingpage_featured_sites',
-            'type' => SiteSelect::class,
+            'type' => Select::class,
             'options' => [
                 'label' => 'Featured sites', // @translate
                 'info' => 'Select the sites displayed in the featured section.', // @translate
+                'value_options' => $featuredSiteOptions,
+                'disable_inarray_validator' => true,
             ],
             'attributes' => [
                 'id' => 'globallandingpage_featured_sites',
                 'multiple' => true,
                 'required' => false,
+                'class' => 'select2-field',
+                'data.theme' => 'classic',
+                'data-placeholder' => 'Select one or more sites...', // @translate
+                'style' => 'width:100%; min-height:200px;',
             ],
         ]);
 
@@ -83,7 +92,6 @@ class ConfigForm extends Form
             ],
         ]);
 
-        $this->configureSiteSelectElement('globallandingpage_featured_sites');
         $this->configureSiteSelectElement('globallandingpage_base_site');
 
         $this->add([
@@ -142,6 +150,55 @@ class ConfigForm extends Form
     }
 
     /**
+     * Build the option list for the featured sites selector.
+     *
+     * @return array<int,string>
+     */
+    private function buildFeaturedSiteOptions(): array
+    {
+        $apiManager = $this->resolveApiManager();
+        if (!$apiManager) {
+            return [];
+        }
+
+        try {
+            $response = $apiManager->search(
+                'sites',
+                [
+                    'sort_by' => 'title',
+                    'sort_order' => 'asc',
+                ]
+            );
+            $sites = $response->getContent();
+        } catch (\Exception $exception) {
+            return [];
+        }
+
+        $options = [];
+        foreach ($sites as $site) {
+            $id = method_exists($site, 'id')
+                ? (int) $site->id()
+                : (int) ($site['o:id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+
+            $title = method_exists($site, 'title')
+                ? (string) $site->title()
+                : (string) ($site['o:title'] ?? '');
+            $title = trim($title) !== '' ? $title : sprintf('Site #%d', $id);
+
+            $options[$id] = $title;
+        }
+
+        if ($options !== []) {
+            asort($options, SORT_NATURAL | SORT_FLAG_CASE);
+        }
+
+        return $options;
+    }
+
+    /**
      * Populate navigation page options based on the selected base site.
      */
     private function populateNavigationPagesOptions(?int $siteId): void
@@ -152,9 +209,11 @@ class ConfigForm extends Form
 
         $options = [];
 
-        if ($siteId !== null && $siteId > 0 && $this->apiManager) {
+        $apiManager = $this->resolveApiManager();
+
+        if ($siteId !== null && $siteId > 0 && $apiManager) {
             try {
-                $response = $this->apiManager->search(
+                $response = $apiManager->search(
                     'site_pages',
                     [
                         'site_id' => $siteId,
@@ -241,7 +300,8 @@ class ConfigForm extends Form
             return $id > 0 ? $id : null;
         }
 
-        if (!is_string($identifier) || !$this->apiManager) {
+        $apiManager = $this->resolveApiManager();
+        if (!is_string($identifier) || !$apiManager) {
             return null;
         }
 
@@ -251,7 +311,7 @@ class ConfigForm extends Form
         }
 
         try {
-            $response = $this->apiManager->search(
+            $response = $apiManager->search(
                 'sites',
                 [
                     'slug' => $slug,
@@ -368,6 +428,21 @@ class ConfigForm extends Form
         return $inputFilter;
     }
 
+    private function resolveApiManager(): ?ApiManager
+    {
+        if ($this->apiManager instanceof ApiManager) {
+            return $this->apiManager;
+        }
+
+        $option = $this->getOption('api_manager');
+        if ($option instanceof ApiManager) {
+            $this->apiManager = $option;
+            return $this->apiManager;
+        }
+
+        return null;
+    }
+
     private function configureSiteSelectElement(string $name): void
     {
         if (!$this->has($name)) {
@@ -379,8 +454,9 @@ class ConfigForm extends Form
             return;
         }
 
-        if ($this->apiManager && method_exists($element, 'setApiManager')) {
-            $element->setApiManager($this->apiManager);
+        $apiManager = $this->resolveApiManager();
+        if ($apiManager && method_exists($element, 'setApiManager')) {
+            $element->setApiManager($apiManager);
         }
     }
 }

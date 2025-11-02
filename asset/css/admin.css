@@ -1,0 +1,18 @@
+.select2-container {
+    min-width: 100%;
+}
+
+.select2-selection--multiple {
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    padding: 4px;
+}
+.select2-selection__choice {
+    line-height: 25px !important;
+}
+.select2-selection__choice__remove {
+    margin: 0px !important;
+    min-height: auto !important;
+    border-right: none !important;
+    box-shadow: none !important;
+}

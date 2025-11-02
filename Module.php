@@ -187,8 +187,8 @@ class Module extends AbstractModule
         $apiManager = $services->get('Omeka\ApiManager');
 
         $form = new ConfigForm();
-        $form->setApiManager($apiManager);
         $form->setSettings($settings);
+        $form->setOption('api_manager', $apiManager);
         $form->init();
 
         $baseSiteSlug = (string) $settings->get(self::SETTING_BASE_SITE, '');
@@ -236,6 +236,19 @@ class Module extends AbstractModule
             );
         }
 
+        $renderer->headLink()->appendStylesheet(
+            'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css'
+        );
+        $renderer->headLink()->appendStylesheet(
+            $renderer->assetUrl('css/admin.css', 'GlobalLandingPage')
+        );
+        $renderer->headScript()->appendFile(
+            'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js'
+        );
+        $renderer->headScript()->appendFile(
+            $renderer->assetUrl('js/admin-init.js', 'GlobalLandingPage')
+        );
+
         return $renderer->render('global-landing-page/config-form', [
             'form' => $form,
         ]);
@@ -250,8 +263,8 @@ class Module extends AbstractModule
         $apiManager = $services->get('Omeka\ApiManager');
 
         $form = new ConfigForm();
-        $form->setApiManager($apiManager);
         $form->setSettings($settings);
+        $form->setOption('api_manager', $apiManager);
         $form->init();
 
         $postData = $controller->params()->fromPost();

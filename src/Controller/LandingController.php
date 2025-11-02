@@ -28,26 +28,6 @@ class LandingController extends AbstractActionController
             $recentItems = [];
         }
 
-        // Fetch featured sites
-        // TODO: Add a settings field to select featured sites
-        $featuredSitesIds = [];
-        $featuredSites = [];
-        try {
-            $response = $this->api()->search('sites', [
-                'sort_by' => 'title',
-                'sort_order' => 'asc',
-            ]);
-            $allSites = $response->getContent();
-            
-            // Filter sites that begin with 'Área'
-            foreach ($allSites as $site) {
-                //if (in_array($site->Id(),$featuredSitesIds)) {
-                    $featuredSites[] = $site;
-               // }
-            }
-        } catch (\Exception $exception) {
-            $featuredSites = [];
-        }
 
         $viewModel = new ViewModel([
             'headline' => 'Servicio Mediateca', // @translate
