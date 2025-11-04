@@ -91,7 +91,8 @@ a {
 abbr[title] {
   border-bottom: none;
   text-decoration: underline;
-  text-decoration: underline dotted;
+  -webkit-text-decoration: underline dotted;
+          text-decoration: underline dotted;
 }
 
 /**
@@ -1104,6 +1105,9 @@ select {
   text-overflow: ellipsis;
   width: 100%;
 }
+input[type=text]::-moz-placeholder, input[type=email]::-moz-placeholder, input[type=url]::-moz-placeholder, input[type=password]::-moz-placeholder, input[type=search]::-moz-placeholder, input[type=number]::-moz-placeholder, input[type=tel]::-moz-placeholder, input[type=range]::-moz-placeholder, input[type=date]::-moz-placeholder, input[type=month]::-moz-placeholder, input[type=week]::-moz-placeholder, input[type=time]::-moz-placeholder, input[type=datetime]::-moz-placeholder, input[type=datetime-local]::-moz-placeholder, input[type=color]::-moz-placeholder, textarea::-moz-placeholder, select::-moz-placeholder {
+  color: #767676;
+}
 input[type=text]::placeholder,
 input[type=email]::placeholder,
 input[type=url]::placeholder,
@@ -1127,7 +1131,8 @@ select::placeholder {
 input[type=checkbox] {
   border: 2px solid #949494;
   -webkit-appearance: none;
-  appearance: none;
+  -moz-appearance: none;
+       appearance: none;
   background-color: #fff;
   margin: 0;
   font: inherit;
@@ -1160,7 +1165,8 @@ input[type=checkbox]:checked::before {
 input[type=radio] {
   border: 2px solid #949494;
   -webkit-appearance: none;
-  appearance: none;
+  -moz-appearance: none;
+       appearance: none;
   background-color: #fff;
   margin: 0;
   font: inherit;
@@ -1401,13 +1407,13 @@ body.main-header--center {
   transition: top 0.3s ease-out;
 }
 .main-header--inline .main-header__top-bar {
-  background: url(https://www3.gobiernodecanarias.org/medusa/wiki/images/1/1d/Logo_GobCan_claim_color.png) no-repeat;
+  background: url("https://www3.gobiernodecanarias.org/medusa/wiki/images/1/1d/Logo_GobCan_claim_color.png") no-repeat;
   background-size: auto 70px;
   background-position: 1.8% center;
   min-height: 80px;
 }
 .main-header--center .main-header__top-bar {
-  background: url(https://www3.gobiernodecanarias.org/medusa/wiki/images/1/1d/Logo_GobCan_claim_color.png) no-repeat;
+  background: url("https://www3.gobiernodecanarias.org/medusa/wiki/images/1/1d/Logo_GobCan_claim_color.png") no-repeat;
   background-size: auto 70px;
   background-position: calc(50% - 25px) calc(50% - 25px);
   min-height: 80px;
@@ -2141,7 +2147,6 @@ body.menu-drawer-toggled {
   justify-content: center;
   margin-left: calc((100vw - 100%) / -2);
   padding: 25px;
-  position: -webkit-sticky;
   position: sticky;
   width: 100vw;
 }
@@ -2274,7 +2279,8 @@ body.menu-drawer-toggled {
 }
 .banner img {
   position: absolute;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   width: 100%;
   height: 100%;
   top: 0;
@@ -2395,16 +2401,14 @@ body.menu-drawer-toggled {
   margin-left: auto;
   margin-right: auto;
   padding: 0 15px;
+  color: #666;
+  padding-bottom: 2rem !important;
+  padding-top: 2rem !important;
 }
 @media (min-width: 768px) {
   #local-contexts-content {
     padding: 0 30px;
   }
-}
-#local-contexts-content {
-  color: #666;
-  padding-bottom: 2rem !important;
-  padding-top: 2rem !important;
 }
 #local-contexts-content .local-contexts-notice {
   padding: 1rem;
@@ -2503,7 +2507,8 @@ body.menu-drawer-toggled {
   flex-shrink: 0;
   height: 60px;
   margin-right: 1rem;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   width: 60px;
 }
 .metadata .media-list dd {
@@ -2520,7 +2525,8 @@ body.menu-drawer-toggled {
 .metadata .media-list .resource-link img {
   flex-shrink: 0;
   height: 100px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   width: 100px;
 }
 .metadata .media-list .resource-link .resource-name {
@@ -2577,6 +2583,7 @@ body.menu-drawer-toggled {
   background-color: #fff;
   border: 1px solid var(--primary);
   color: var(--primary);
+  float: right;
 }
 .preview-block .browse-all:hover:not(.disabled) {
   background-color: var(--primary);
@@ -2592,9 +2599,6 @@ body.menu-drawer-toggled {
 }
 .preview-block .browse-all:visited {
   color: var(--primary);
-}
-.preview-block .browse-all {
-  float: right;
 }
 
 /* Carousel
@@ -2785,7 +2789,8 @@ body.menu-drawer-toggled {
   max-height: none !important;
   height: 150px;
   width: 100% !important;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 /* Media Embed
@@ -2812,7 +2817,8 @@ body.menu-drawer-toggled {
   max-height: none;
   height: 150px;
   width: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 .file {
@@ -2949,6 +2955,15 @@ body.menu-drawer-toggled {
   background-color: #fff;
   border: 1px solid var(--primary);
   color: var(--primary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 1.4rem;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  width: 37px;
 }
 .pagination .button:hover:not(.disabled) {
   background-color: var(--primary);
@@ -2964,17 +2979,6 @@ body.menu-drawer-toggled {
 }
 .pagination .button:visited {
   color: var(--primary);
-}
-.pagination .button {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  font-size: 1.4rem;
-  height: 40px;
-  justify-content: center;
-  padding: 0;
-  position: relative;
-  width: 37px;
 }
 .pagination .button:hover:not(.disabled)::before, .pagination .button:active:not(.disabled)::before {
   color: #fff;
@@ -3007,6 +3011,8 @@ body.menu-drawer-toggled {
   background-color: #fff;
   border: 1px solid var(--primary);
   color: var(--primary);
+  font-size: 0.75rem;
+  padding: 10px 14px;
 }
 .site-page-pagination a:hover:not(.disabled) {
   background-color: var(--primary);
@@ -3022,10 +3028,6 @@ body.menu-drawer-toggled {
 }
 .site-page-pagination a:visited {
   color: var(--primary);
-}
-.site-page-pagination a {
-  font-size: 0.75rem;
-  padding: 10px 14px;
 }
 
 /* Facets
@@ -3338,6 +3340,7 @@ body.menu-drawer-toggled {
   background-color: #fff;
   border: 1px solid var(--primary);
   color: var(--primary);
+  padding: 10px 20px;
 }
 .browse-controls .permalink:hover:not(.disabled) {
   background-color: var(--primary);
@@ -3353,9 +3356,6 @@ body.menu-drawer-toggled {
 }
 .browse-controls .permalink:visited {
   color: var(--primary);
-}
-.browse-controls .permalink {
-  padding: 10px 20px;
 }
 
 .search-form {
@@ -3457,7 +3457,8 @@ body.menu-drawer-toggled {
 }
 .resource-grid#featured-sites-grid .resource__thumbnail img, .resource-grid#sites-grid .resource__thumbnail img {
   max-height: 110px;
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
   width: 100%;
   background-color: #FFF;
 }
@@ -3513,7 +3514,8 @@ body.menu-drawer-toggled {
 }
 .resource-grid .resource__thumbnail img {
   height: 200px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   width: 100%;
 }
 .resource-grid .resource__thumbnail--placeholder {
@@ -3590,7 +3592,8 @@ body.menu-drawer-toggled {
 }
 .resource-list .resource__thumbnail img {
   height: 100px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   width: 100px;
 }
 .resource-list .resource__content {
@@ -3692,6 +3695,17 @@ body.search .results .resource__content {
   clear: both;
   color: var(--secondary-contrast);
   font-size: 0.875rem;
+  /*&__copyright {
+      display: flex;
+      justify-content: space-between; 
+      align-items: center;
+      flex-wrap: wrap; 
+      padding: 10px 0;
+
+      span {
+          margin-left: 1rem;
+      }
+  }*/
 }
 .main-footer__top {
   background-color: var(--secondary);
@@ -3884,19 +3898,6 @@ body.search .results .resource__content {
     order: 1;
   }
 }
-.main-footer {
-  /*&__copyright {
-      display: flex;
-      justify-content: space-between; 
-      align-items: center;
-      flex-wrap: wrap; 
-      padding: 10px 0;
-
-      span {
-          margin-left: 1rem;
-      }
-  }*/
-}
 .main-footer__copyright {
   /* Use Flexbox to manage children layout */
   display: flex;
@@ -4043,6 +4044,4 @@ body.search .results .resource__content {
   content: "";
   clear: both;
   display: table;
-}
-
-/*# sourceMappingURL=style.css.map */
+}/*# sourceMappingURL=style.css.map */

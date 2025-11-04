@@ -29,9 +29,7 @@ class Module extends AbstractModule
     public const SETTING_ACCENT_COLOR = 'globallandingpage_accent_color';
     public const SETTING_LOGOS = 'globallandingpage_logos';
     public const DEFAULT_LOGOS = [
-        'logo-mediateca.svg',
-        'ate_logo.png',
-        'logo-cauce.png',
+        'default_logo.svg',
     ];
     public const DEFAULT_COLORS = [
         self::SETTING_PRIMARY_COLOR => '#e77f11',
@@ -59,7 +57,7 @@ class Module extends AbstractModule
         foreach (self::DEFAULT_COLORS as $settingKey => $defaultValue) {
             $settings->set($settingKey, $defaultValue);
         }
-        $settings->set(self::SETTING_LOGOS, self::DEFAULT_LOGOS);
+        $settings->set(self::SETTING_LOGOS, []);
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
@@ -202,6 +200,12 @@ class Module extends AbstractModule
         }
         $navPageSlugs = array_keys($navPagesSetting);
 
+        $logoIds = $settings->get(self::SETTING_LOGOS, []);
+        if (!is_array($logoIds)) {
+            $logoIds = [];
+        }
+        $logoIds = array_values($logoIds);
+
         $form->setData([
             self::SETTING_USE_CUSTOM => $settings->get(self::SETTING_USE_CUSTOM, false) ? '1' : '0',
             self::SETTING_FEATURED_SITES => $settings->get(self::SETTING_FEATURED_SITES, []),
@@ -220,6 +224,9 @@ class Module extends AbstractModule
                 self::SETTING_ACCENT_COLOR,
                 self::DEFAULT_COLORS[self::SETTING_ACCENT_COLOR]
             ),
+            'globallandingpage_logo_1' => $logoIds[0] ?? '',
+            'globallandingpage_logo_2' => $logoIds[1] ?? '',
+            'globallandingpage_logo_3' => $logoIds[2] ?? '',
         ]);
 
         if ($form->has(self::SETTING_NAV_PAGES)) {
@@ -249,8 +256,18 @@ class Module extends AbstractModule
             $renderer->assetUrl('js/admin-init.js', 'GlobalLandingPage')
         );
 
+        $selectedLogos = $this->prepareLogoData(
+            $settings->get(self::SETTING_LOGOS, []),
+            $apiManager
+        );
+
+        if ($selectedLogos === []) {
+            $selectedLogos = $this->prepareDefaultLogoData($renderer);
+        }
+
         return $renderer->render('global-landing-page/config-form', [
             'form' => $form,
+            'selectedLogos' => $selectedLogos,
         ]);
     }
 
@@ -317,15 +334,15 @@ class Module extends AbstractModule
             self::DEFAULT_COLORS[self::SETTING_ACCENT_COLOR]
         );
 
-        $existingLogos = $settings->get(self::SETTING_LOGOS, []);
-        if (!is_array($existingLogos)) {
-            $existingLogos = [];
+        $selectedLogos = [];
+        for ($index = 1; $index <= self::MAX_LOGO_FILES; ++$index) {
+            $fieldName = sprintf('globallandingpage_logo_%d', $index);
+            $logoId = $this->normalizeAssetIdentifier($data[$fieldName] ?? null);
+            if ($logoId !== null) {
+                $selectedLogos[] = $logoId;
+            }
         }
-        $uploadedLogos = $this->storeUploadedLogos($fileData[self::SETTING_LOGOS] ?? null);
-        if ($uploadedLogos !== []) {
-            $existingLogos = array_values(array_unique(array_merge($existingLogos, $uploadedLogos)));
-            $existingLogos = array_slice($existingLogos, 0, self::MAX_LOGO_FILES);
-        }
+        $selectedLogos = array_values(array_unique($selectedLogos));
 
         $settings->set(self::SETTING_USE_CUSTOM, $useCustom);
         $settings->set(self::SETTING_FEATURED_SITES, $featuredSites);
@@ -335,7 +352,7 @@ class Module extends AbstractModule
         $settings->set(self::SETTING_PRIMARY_COLOR, $primaryColor);
         $settings->set(self::SETTING_SECONDARY_COLOR, $secondaryColor);
         $settings->set(self::SETTING_ACCENT_COLOR, $accentColor);
-        $settings->set(self::SETTING_LOGOS, array_values($existingLogos));
+        $settings->set(self::SETTING_LOGOS, $selectedLogos);
 
         $resolver = $services->has('ViewTemplateMapResolver')
             ? $services->get('ViewTemplateMapResolver')
@@ -501,6 +518,43 @@ class Module extends AbstractModule
         return null;
     }
 
+    /**
+     * @param mixed $value
+     */
+    private function normalizeAssetIdentifier($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            $id = (int) $value;
+            return $id > 0 ? $id : null;
+        }
+
+        if (!is_array($value)) {
+            return null;
+        }
+
+        $candidates = [
+            $value['o:id'] ?? null,
+            $value['id'] ?? null,
+            $value['asset']['o:id'] ?? null,
+            $value['asset']['id'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_numeric($candidate)) {
+                $id = (int) $candidate;
+                if ($id > 0) {
+                    return $id;
+                }
+            }
+        }
+
+        return null;
+    }
+
     private function normalizeColor($value, string $default): string
     {
         if (!is_string($value)) {
@@ -523,122 +577,143 @@ class Module extends AbstractModule
      * @param array<string,mixed>|null $files
      * @return string[]
      */
-    private function storeUploadedLogos(?array $files): array
+    private function prepareLogoData($logoIds, ApiManager $apiManager): array
     {
-        if ($files === null) {
+        $rawValues = [];
+        if (is_array($logoIds)) {
+            $rawValues = $logoIds;
+        } elseif ($logoIds !== null && $logoIds !== '') {
+            $rawValues = [$logoIds];
+        }
+
+        $ids = [];
+        foreach ($rawValues as $value) {
+            $normalized = $this->normalizeAssetIdentifier($value);
+            if ($normalized !== null) {
+                $ids[] = $normalized;
+            }
+        }
+
+        if ($ids === []) {
             return [];
         }
 
-        $uploads = $this->normalizeUploadedFiles($files);
-        if ($uploads === []) {
-            return [];
-        }
-
-        $targetDir = $this->getAssetPath('img');
-        if (!is_dir($targetDir)) {
-            @mkdir($targetDir, 0775, true);
-        }
-
-        $stored = [];
-        foreach ($uploads as $upload) {
-            $error = (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE);
-            if ($error !== UPLOAD_ERR_OK) {
+        $prepared = [];
+        foreach (array_slice(array_values(array_unique($ids)), 0, self::MAX_LOGO_FILES) as $id) {
+            try {
+                $asset = $apiManager->read('assets', $id)->getContent();
+            } catch (\Exception $exception) {
                 continue;
             }
 
-            $tmpName = $upload['tmp_name'] ?? '';
-            if (!is_string($tmpName) || $tmpName === '' || !is_uploaded_file($tmpName)) {
+            $src = '';
+            $alt = '';
+            $label = '';
+            $serialized = null;
+
+            if (is_object($asset)) {
+                if (method_exists($asset, 'assetUrl')) {
+                    $src = (string) $asset->assetUrl();
+                } elseif (method_exists($asset, 'originalUrl')) {
+                    $src = (string) $asset->originalUrl();
+                } elseif (method_exists($asset, 'thumbnailDisplayUrl')) {
+                    $src = (string) $asset->thumbnailDisplayUrl('large');
+                } elseif (method_exists($asset, 'thumbnailUrl')) {
+                    $src = (string) $asset->thumbnailUrl('large');
+                }
+
+                if (method_exists($asset, 'altText')) {
+                    $alt = (string) $asset->altText();
+                }
+
+                if (method_exists($asset, 'displayTitle')) {
+                    $label = (string) $asset->displayTitle();
+                } elseif (method_exists($asset, 'title')) {
+                    $label = (string) $asset->title();
+                }
+
+                if (method_exists($asset, 'jsonSerialize')) {
+                    $serialized = $asset->jsonSerialize();
+                }
+            } elseif (is_array($asset)) {
+                $serialized = $asset;
+            }
+
+            if (is_array($serialized)) {
+                $src = $this->resolveAssetSource($src, $serialized);
+                if ($alt === '' && isset($serialized['o:alt_text']) && is_string($serialized['o:alt_text'])) {
+                    $alt = (string) $serialized['o:alt_text'];
+                }
+                if ($label === '' && isset($serialized['o:name']) && is_string($serialized['o:name'])) {
+                    $label = (string) $serialized['o:name'];
+                }
+            }
+
+            if ($src === '') {
                 continue;
             }
 
-            $filename = $this->generateLogoFilename($upload['name'] ?? '', $targetDir);
-            if ($filename === null) {
-                continue;
-            }
-
-            $destination = $targetDir . DIRECTORY_SEPARATOR . $filename;
-            if (!@move_uploaded_file($tmpName, $destination)) {
-                continue;
-            }
-
-            $stored[] = $filename;
-            if (count($stored) >= self::MAX_LOGO_FILES) {
-                break;
-            }
-        }
-
-        return $stored;
-    }
-
-    /**
-     * @param array<string,mixed> $files
-     * @return array<int,array<string,mixed>>
-     */
-    private function normalizeUploadedFiles(array $files): array
-    {
-        if (!isset($files['name'])) {
-            return [];
-        }
-
-        if (!is_array($files['name'])) {
-            return [$files];
-        }
-
-        $normalized = [];
-        foreach ($files['name'] as $index => $name) {
-            $normalized[] = [
-                'name' => $name,
-                'type' => $files['type'][$index] ?? null,
-                'tmp_name' => $files['tmp_name'][$index] ?? '',
-                'error' => $files['error'][$index] ?? UPLOAD_ERR_NO_FILE,
-                'size' => $files['size'][$index] ?? null,
+            $prepared[] = [
+                'id' => $id,
+                'src' => $src,
+                'alt' => $alt,
+                'label' => $label !== '' ? $label : null,
+                'is_default' => false,
             ];
         }
 
-        return $normalized;
+        return $prepared;
     }
 
-    private function generateLogoFilename(?string $original, string $targetDir): ?string
+    private function resolveAssetSource(string $current, array $asset): string
     {
-        if ($original === null || $original === '') {
-            return null;
+        if ($current !== '') {
+            return $current;
         }
 
-        $extension = strtolower((string) pathinfo($original, PATHINFO_EXTENSION));
-        if ($extension === '') {
-            return null;
+        if (isset($asset['o:original_url']) && is_string($asset['o:original_url'])) {
+            return $asset['o:original_url'];
         }
 
-        $basename = (string) pathinfo($original, PATHINFO_FILENAME);
-        $basename = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $basename) ?? '');
-        $basename = trim($basename, '-');
-        if ($basename === '') {
-            $basename = 'logo';
-        }
-
-        $candidate = $basename;
-        $suffix = 1;
-        do {
-            $filename = sprintf('%s.%s', $candidate, $extension);
-            $path = $targetDir . DIRECTORY_SEPARATOR . $filename;
-            if (!file_exists($path)) {
-                return $filename;
+        if (isset($asset['o:thumbnail_urls']) && is_array($asset['o:thumbnail_urls'])) {
+            foreach (['large', 'medium', 'square', 'original'] as $key) {
+                if (isset($asset['o:thumbnail_urls'][$key]) && is_string($asset['o:thumbnail_urls'][$key])) {
+                    return $asset['o:thumbnail_urls'][$key];
+                }
             }
-            $candidate = sprintf('%s-%d', $basename, $suffix);
-            ++$suffix;
-        } while ($suffix < 100);
-
-        return sprintf('%s-%s.%s', $basename, uniqid('', true), $extension);
-    }
-
-    private function getAssetPath(string $subDir = ''): string
-    {
-        $base = __DIR__ . '/asset';
-        if ($subDir !== '') {
-            $base .= '/' . trim($subDir, '/');
         }
 
-        return $base;
+        if (isset($asset['@id']) && is_string($asset['@id'])) {
+            return $asset['@id'];
+        }
+
+        if (isset($asset['@value']) && is_string($asset['@value'])) {
+            return $asset['@value'];
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array<int,array{id: ?int, src: string, alt: string, label: ?string, is_default: bool}>
+     */
+    private function prepareDefaultLogoData(PhpRenderer $renderer): array
+    {
+        $defaults = [];
+        foreach (self::DEFAULT_LOGOS as $filename) {
+            $src = $renderer->assetUrl('img/' . ltrim($filename, '/'), 'GlobalLandingPage');
+            $basename = pathinfo($filename, PATHINFO_FILENAME);
+            $label = ucwords(str_replace(['-', '_'], ' ', $basename));
+            $defaults[] = [
+                'id' => null,
+                'src' => $src,
+                'alt' => $label,
+                'label' => $label,
+                'is_default' => true,
+            ];
+        }
+
+        return $defaults;
     }
 
     /**

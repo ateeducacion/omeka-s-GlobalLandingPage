@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80">
+  <rect width="200" height="80" rx="8" ry="8" fill="#fff7f0" stroke="#e77f11" stroke-width="3"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Open Sans, Arial, sans-serif" font-size="20" font-weight="600" fill="#e77f11">
+    Your Logo
+  </text>
+</svg>

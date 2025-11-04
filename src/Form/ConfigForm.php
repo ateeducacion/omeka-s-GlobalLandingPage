@@ -5,7 +5,6 @@ namespace GlobalLandingPage\Form;
 
 use Laminas\Form\Element\Checkbox;
 use Laminas\Form\Element\Color;
-use Laminas\Form\Element\File;
 use Laminas\Form\Element\Select;
 use Laminas\Form\Element\Textarea;
 use Laminas\Form\Form;
@@ -131,19 +130,26 @@ class ConfigForm extends Form
         $this->addColorElement('globallandingpage_secondary_color', 'Secondary color');
         $this->addColorElement('globallandingpage_accent_color', 'Accent color');
 
-        $this->add([
-            'name' => 'globallandingpage_logos',
-            'type' => File::class,
-            'options' => [
-                'label' => 'Header logos', // @translate
-                'info' => 'Upload up to three logos. Accepted formats: SVG, PNG, JPG, GIF.', // @translate
-            ],
-            'attributes' => [
-                'id' => 'globallandingpage_logos',
-                'multiple' => true,
-                'accept' => 'image/*',
-            ],
-        ]);
+        $storedLogoIds = $this->getStoredLogoIds();
+        for ($index = 0; $index < 3; ++$index) {
+            $fieldName = sprintf('globallandingpage_logo_%d', $index + 1);
+            $this->add([
+                'name' => $fieldName,
+                'type' => 'Omeka\Form\Element\Asset',
+                'options' => [
+                    'label' => $index === 0
+                        ? 'Header logo' // @translate
+                        : sprintf('Header logo %d', $index + 1), // @translate
+                    'info' => $index === 0
+                        ? 'Choose an asset to display in the global header.' // @translate
+                        : 'Optional additional logo to display alongside the first one.' // @translate
+                ],
+                'attributes' => [
+                    'id' => $fieldName,
+                    'value' => $storedLogoIds[$index] ?? '',
+                ],
+            ]);
+        }
 
         $this->setInputFilter($this->buildInputFilter());
         $this->populateNavigationPagesOptions($this->getStoredBaseSiteId());
@@ -287,6 +293,33 @@ class ConfigForm extends Form
     }
 
     /**
+     * @return int[]
+     */
+    private function getStoredLogoIds(): array
+    {
+        if (!$this->settings) {
+            return [];
+        }
+
+        $stored = $this->settings->get('globallandingpage_logos', []);
+        if (!is_array($stored)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($stored as $value) {
+            if (is_numeric($value)) {
+                $value = (int) $value;
+                if ($value > 0) {
+                    $ids[] = $value;
+                }
+            }
+        }
+
+        return array_values($ids);
+    }
+
+    /**
      * @param mixed $identifier
      */
     private function normalizeSiteIdentifier($identifier): ?int
@@ -398,32 +431,12 @@ class ConfigForm extends Form
             ]);
         }
 
-        $inputFilter->add([
-            'name' => 'globallandingpage_logos',
-            'required' => false,
-            'type' => 'Laminas\InputFilter\FileInput',
-            'validators' => [
-                [
-                    'name' => 'Laminas\Validator\File\Count',
-                    'options' => [
-                        'max' => 3,
-                    ],
-                ],
-                [
-                    'name' => 'Laminas\Validator\File\Extension',
-                    'options' => [
-                        'extension' => ['svg', 'png', 'jpg', 'jpeg', 'gif', 'webp'],
-                        'case' => false,
-                    ],
-                ],
-                [
-                    'name' => 'Laminas\Validator\File\Size',
-                    'options' => [
-                        'max' => '4MB',
-                    ],
-                ],
-            ],
-        ]);
+        for ($index = 0; $index < 3; ++$index) {
+            $inputFilter->add([
+                'name' => sprintf('globallandingpage_logo_%d', $index + 1),
+                'required' => false,
+            ]);
+        }
 
         return $inputFilter;
     }

@@ -1,18 +1,80 @@
 .select2-container {
     min-width: 100%;
+    line-height: 10px !important;
 }
-
 .select2-selection--multiple {
     border: 1px solid #ccc !important;
     border-radius: 4px !important;
-    padding: 4px;
 }
 .select2-selection__choice {
     line-height: 25px !important;
+    background-color: #f0f0f0 !important;
+    border: 0px !important;
+}
+.select2-selection__choice__display {
+    line-height: 24px;
+    border: 0;
+    padding: 0 27px 0 0;
 }
 .select2-selection__choice__remove {
     margin: 0px !important;
     min-height: auto !important;
     border-right: none !important;
     box-shadow: none !important;
+}
+
+.glp-admin-logo-preview {
+    margin-top: 1.5rem;
+}
+
+.glp-admin-logo-preview h3 {
+    margin-bottom: 0.75rem;
+}
+
+.glp-admin-logo-preview__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.glp-admin-logo-preview__item {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    max-width: 180px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+.glp-admin-logo-preview__item figure{
+    margin: 0;
+}
+
+.glp-admin-logo-preview__item img {
+    max-height: 80px;
+    max-width: 150px;
+    width: auto;
+    margin: 0 auto 0.5rem auto;
+    display: block;
+}
+
+.glp-admin-logo-preview__item figcaption {
+    font-size: 0.85rem;
+    margin: 0.5rem 0 0;
+}
+
+.glp-admin-logo-preview__meta {
+    font-size: 0.75rem;
+    color: #555;
+    margin: 0.5rem 0 0;
+}
+
+.selected-asset-image {
+        max-width: 200px;
 }
