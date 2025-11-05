@@ -43,6 +43,7 @@ return [
             View\Helper\ShadeColor::class => InvokableFactory::class,
             View\Helper\ContrastColor::class => InvokableFactory::class,
             View\Helper\ResourceTags::class => InvokableFactory::class,
+            View\Helper\LandingPageConfig::class => InvokableFactory::class,
         ],
         'aliases' => [
             'shadeColor' => View\Helper\ShadeColor::class,
@@ -51,6 +52,8 @@ return [
             'ContrastColor' => View\Helper\ContrastColor::class,
             'resourceTags' => View\Helper\ResourceTags::class,
             'ResourceTags' => View\Helper\ResourceTags::class,
+            'landingPageConfig' => View\Helper\LandingPageConfig::class,
+            'LandingPageConfig' => View\Helper\LandingPageConfig::class,
         ],
     ],
     'view_manager' => [

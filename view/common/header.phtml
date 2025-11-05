@@ -42,6 +42,7 @@ $headerModifier = trim((string) ($this->headerModifier ?? 'main-header--inline')
 $siteTitle = isset($this->siteTitle) ? (string) $this->siteTitle : $this->translate('Global Landing Page');
 $siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('Repositorio de medios audiovisuales educativos.');
 $homeAnchor = $this->url('globallandingpage', [], true);
+$showTopBar = isset($this->showTopBar) ? (bool) $this->showTopBar : true;
 
 $logoEntries = [];
 $rawLogos = $this->sitesLogos ?? [];
@@ -75,6 +76,26 @@ if (is_iterable($rawLogos)) {
     }
 }
 
+$topBarLogoEntry = null;
+$rawTopBarLogo = $this->topBarLogo ?? null;
+if (is_array($rawTopBarLogo)) {
+    $topBarSrc = isset($rawTopBarLogo['src']) ? (string) $rawTopBarLogo['src'] : '';
+    if ($topBarSrc !== '') {
+        $topBarAlt = isset($rawTopBarLogo['alt']) && $rawTopBarLogo['alt'] !== ''
+            ? (string) $rawTopBarLogo['alt']
+            : $siteTitle;
+        $topBarLogoEntry = [
+            'src' => $topBarSrc,
+            'alt' => $topBarAlt,
+        ];
+    }
+} elseif (is_string($rawTopBarLogo) && $rawTopBarLogo !== '') {
+    $topBarLogoEntry = [
+        'src' => $rawTopBarLogo,
+        'alt' => $siteTitle,
+    ];
+}
+
 $this->inlineScript()->appendScript(sprintf(
     'window.closeText = %s; window.previousText = %s;',
     json_encode($this->translate('Close menu')),
@@ -82,20 +103,26 @@ $this->inlineScript()->appendScript(sprintf(
 ));
 ?>
 <header class="main-header <?= $this->escapeHtmlAttr($headerModifier); ?>" role="banner">
-    <div class="main-header__top-bar container">
-            <div class="main-header__advanced-search">
-                <a class="link-style" href="#advanced-search">
-                    <?= $this->translate('Advanced search'); ?>
-                </a>
-            </div>
+    <?php if ($showTopBar): ?>
+        <div class="main-header__top-bar container">
+            <?php if ($topBarLogoEntry): ?>
+                <div class="main-header__top-bar-logo">
+                    <img
+                        src="<?= $this->escapeHtmlAttr($topBarLogoEntry['src']); ?>"
+                        alt="<?= $this->escapeHtmlAttr($topBarLogoEntry['alt']); ?>"
+                        loading="lazy"
+                    >
+                </div>
+            <?php endif; ?>
             <div class="main-header__search-form">
                 <?= $this->partial(
                     'common/cross-site-search/fulltext-form.phtml',
                     ['action' => $this->url('search', ['action' => 'results'], true)]
                 ); ?>
             </div>
-    </div>
-    <hr>
+        </div>
+        <hr>
+    <?php endif; ?>
     <div class="main-header__main-bar container">
         <div class="main-header__site-title">
             <a href="<?= $this->escapeHtmlAttr($homeAnchor); ?>">

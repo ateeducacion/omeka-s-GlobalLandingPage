@@ -7,6 +7,7 @@ use Laminas\Form\Element\Checkbox;
 use Laminas\Form\Element\Color;
 use Laminas\Form\Element\Select;
 use Laminas\Form\Element\Textarea;
+use Laminas\Form\Fieldset;
 use Laminas\Form\Form;
 use Laminas\InputFilter\InputFilter;
 use Laminas\Validator\Regex as RegexValidator;
@@ -123,6 +124,34 @@ class ConfigForm extends Form
                 'id' => 'globallandingpage_footer_html',
                 'rows' => 6,
                 'required' => false,
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'globallandingpage_show_top_bar',
+            'type' => Checkbox::class,
+            'options' => [
+                'label' => 'Display top bar', // @translate
+                'info' => 'Toggle the top bar shown above the header on the global landing page.', // @translate
+                'use_hidden_element' => true,
+                'checked_value' => '1',
+                'unchecked_value' => '0',
+            ],
+            'attributes' => [
+                'id' => 'globallandingpage_show_top_bar',
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'globallandingpage_top_bar_logo',
+            'type' => 'Omeka\Form\Element\Asset',
+            'options' => [
+                'label' => 'Top bar logo', // @translate
+                'info' => 'Optional asset displayed inside the top bar. Leave blank to omit.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'globallandingpage_top_bar_logo',
+                'value' => $this->getStoredTopBarLogoId() ?? '',
             ],
         ]);
 
@@ -292,6 +321,32 @@ class ConfigForm extends Form
         return $this->normalizeSiteIdentifier($stored);
     }
 
+    private function getStoredTopBarLogoId(): ?int
+    {
+        if (!$this->settings) {
+            return null;
+        }
+
+        $stored = $this->settings->get('globallandingpage_top_bar_logo');
+        if (is_numeric($stored)) {
+            $id = (int) $stored;
+            return $id > 0 ? $id : null;
+        }
+
+        if (is_array($stored)) {
+            foreach (['o:id', 'id'] as $key) {
+                if (isset($stored[$key]) && is_numeric($stored[$key])) {
+                    $id = (int) $stored[$key];
+                    if ($id > 0) {
+                        return $id;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @return int[]
      */
@@ -430,6 +485,17 @@ class ConfigForm extends Form
                 ],
             ]);
         }
+
+        $topBarFilter = new InputFilter();
+        $topBarFilter->add([
+            'name' => 'globallandingpage_show_top_bar',
+            'required' => false,
+        ]);
+        $topBarFilter->add([
+            'name' => 'globallandingpage_top_bar_logo',
+            'required' => false,
+        ]);
+        $inputFilter->add($topBarFilter, 'globallandingpage_top_bar_section');
 
         for ($index = 0; $index < 3; ++$index) {
             $inputFilter->add([

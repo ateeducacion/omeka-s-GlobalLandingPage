@@ -28,6 +28,8 @@ class Module extends AbstractModule
     public const SETTING_SECONDARY_COLOR = 'globallandingpage_secondary_color';
     public const SETTING_ACCENT_COLOR = 'globallandingpage_accent_color';
     public const SETTING_LOGOS = 'globallandingpage_logos';
+    public const SETTING_SHOW_TOP_BAR = 'globallandingpage_show_top_bar';
+    public const SETTING_TOP_BAR_LOGO = 'globallandingpage_top_bar_logo';
     public const DEFAULT_LOGOS = [
         'default_logo.svg',
     ];
@@ -58,6 +60,8 @@ class Module extends AbstractModule
             $settings->set($settingKey, $defaultValue);
         }
         $settings->set(self::SETTING_LOGOS, []);
+        $settings->set(self::SETTING_SHOW_TOP_BAR, true);
+        $settings->set(self::SETTING_TOP_BAR_LOGO, '');
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
@@ -77,6 +81,8 @@ class Module extends AbstractModule
         $settings->delete(self::SETTING_SECONDARY_COLOR);
         $settings->delete(self::SETTING_ACCENT_COLOR);
         $settings->delete(self::SETTING_LOGOS);
+        $settings->delete(self::SETTING_SHOW_TOP_BAR);
+        $settings->delete(self::SETTING_TOP_BAR_LOGO);
     }
 
     public function onBootstrap(MvcEvent $event): void
@@ -205,6 +211,7 @@ class Module extends AbstractModule
             $logoIds = [];
         }
         $logoIds = array_values($logoIds);
+        $topBarLogoSetting = $settings->get(self::SETTING_TOP_BAR_LOGO, '');
 
         $form->setData([
             self::SETTING_USE_CUSTOM => $settings->get(self::SETTING_USE_CUSTOM, false) ? '1' : '0',
@@ -224,11 +231,12 @@ class Module extends AbstractModule
                 self::SETTING_ACCENT_COLOR,
                 self::DEFAULT_COLORS[self::SETTING_ACCENT_COLOR]
             ),
+            'globallandingpage_show_top_bar' => $settings->get(self::SETTING_SHOW_TOP_BAR, true) ? '1' : '0',
+            'globallandingpage_top_bar_logo' => $topBarLogoSetting,
             'globallandingpage_logo_1' => $logoIds[0] ?? '',
             'globallandingpage_logo_2' => $logoIds[1] ?? '',
             'globallandingpage_logo_3' => $logoIds[2] ?? '',
         ]);
-
         if ($form->has(self::SETTING_NAV_PAGES)) {
             $navPagesElement = $form->get(self::SETTING_NAV_PAGES);
             $navPagesElement->setAttribute('data-selected-values', implode(',', $navPageSlugs));
@@ -334,6 +342,9 @@ class Module extends AbstractModule
             self::DEFAULT_COLORS[self::SETTING_ACCENT_COLOR]
         );
 
+        $showTopBar = $this->normalizeCheckbox($data['globallandingpage_show_top_bar'] ?? null);
+        $topBarLogoId = $this->normalizeAssetIdentifier($data['globallandingpage_top_bar_logo'] ?? null);
+
         $selectedLogos = [];
         for ($index = 1; $index <= self::MAX_LOGO_FILES; ++$index) {
             $fieldName = sprintf('globallandingpage_logo_%d', $index);
@@ -352,6 +363,8 @@ class Module extends AbstractModule
         $settings->set(self::SETTING_PRIMARY_COLOR, $primaryColor);
         $settings->set(self::SETTING_SECONDARY_COLOR, $secondaryColor);
         $settings->set(self::SETTING_ACCENT_COLOR, $accentColor);
+        $settings->set(self::SETTING_SHOW_TOP_BAR, $showTopBar);
+        $settings->set(self::SETTING_TOP_BAR_LOGO, $topBarLogoId ?? '');
         $settings->set(self::SETTING_LOGOS, $selectedLogos);
 
         $resolver = $services->has('ViewTemplateMapResolver')

@@ -8,164 +8,24 @@
  * @var array $recentItems
  */
 
-$headline = $this->headline ?? $this->translate('Servicio Mediateca'); // @translate
-$lead = $this->lead ?? $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
+$landingConfig = $this->landingPageConfig();
+$headline = isset($landingConfig['headline']) && is_string($landingConfig['headline'])
+    ? $landingConfig['headline']
+    : $this->translate('Servicio Mediateca'); // @translate
+$lead = isset($landingConfig['lead']) && is_string($landingConfig['lead'])
+    ? $landingConfig['lead']
+    : $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
 $primaryActionLabel = $this->primaryActionLabel ?? $this->translate('Browse Collections'); // @translate
 $primaryActionUrl = $this->primaryActionUrl ?? '#collections';
 $heroImage = $this->heroImage ?? null;
 
-$featuredSites = [];
-$featuredSiteIds = $this->setting(\GlobalLandingPage\Module::SETTING_FEATURED_SITES, []);
-if (is_array($featuredSiteIds)) {
-    foreach ($featuredSiteIds as $siteId) {
-        $siteId = (int) $siteId;
-        if ($siteId <= 0) {
-            continue;
-        }
-        try {
-            $featuredSites[] = $this->api()->read('sites', $siteId)->getContent();
-        } catch (\Exception $exception) {
-            continue;
-        }
-    }
-}
-
-$baseSiteSlug = (string) $this->setting(\GlobalLandingPage\Module::SETTING_BASE_SITE, '');
-$navPagesSetting = $this->setting(\GlobalLandingPage\Module::SETTING_NAV_PAGES, []);
-if (!is_array($navPagesSetting)) {
-    $navPagesSetting = [];
-}
-
-$navItems = [
-    [
-        'label' => $this->translate('Inicio'),
-        'url' => $this->url('globallandingpage', [], true),
-        'active' => true,
-    ],
-    [
-        'label' => $this->translate('Explorar Canales'),
-        'url' => $this->url('globallandingpage-sites', [], true),
-        'active' => false,
-    ],
-];
-
-if ($baseSiteSlug !== '' && $navPagesSetting !== []) {
-    foreach ($navPagesSetting as $slug => $title) {
-        if (!is_string($slug) || $slug === '') {
-            continue;
-        }
-        if (!is_string($title) || $title === '') {
-            $title = $slug;
-        }
-        $navItems[] = [
-            'label' => $title,
-            'url' => $this->url(
-                'site/page',
-                ['site-slug' => $baseSiteSlug, 'page-slug' => $slug],
-                ['force_canonical' => true]
-            ),
-            'active' => false,
-        ];
-    }
-}
-
-$siteLogosSetting = $this->setting(\GlobalLandingPage\Module::SETTING_LOGOS, []);
-$siteLogos = [];
-if (is_array($siteLogosSetting) && $siteLogosSetting !== []) {
-    foreach ($siteLogosSetting as $assetId) {
-        $assetId = (int) $assetId;
-        if ($assetId <= 0) {
-            continue;
-        }
-
-        try {
-            $asset = $this->api()->read('assets', $assetId)->getContent();
-        } catch (\Exception $exception) {
-            continue;
-        }
-
-        $src = '';
-        $alt = '';
-        $label = '';
-        $serialized = null;
-
-        if (is_object($asset)) {
-            if (method_exists($asset, 'assetUrl')) {
-                $src = (string) $asset->assetUrl();
-            } elseif (method_exists($asset, 'originalUrl')) {
-                $src = (string) $asset->originalUrl();
-            } elseif (method_exists($asset, 'thumbnailDisplayUrl')) {
-                $src = (string) $asset->thumbnailDisplayUrl('large');
-            } elseif (method_exists($asset, 'thumbnailUrl')) {
-                $src = (string) $asset->thumbnailUrl('large');
-            }
-
-            if (method_exists($asset, 'altText')) {
-                $alt = (string) $asset->altText();
-            }
-
-            if (method_exists($asset, 'displayTitle')) {
-                $label = (string) $asset->displayTitle();
-            } elseif (method_exists($asset, 'title')) {
-                $label = (string) $asset->title();
-            }
-
-            if (method_exists($asset, 'jsonSerialize')) {
-                $serialized = $asset->jsonSerialize();
-            }
-        } elseif (is_array($asset)) {
-            $serialized = $asset;
-        }
-
-        if (is_array($serialized)) {
-            if ($src === '' && isset($serialized['o:original_url']) && is_string($serialized['o:original_url'])) {
-                $src = (string) $serialized['o:original_url'];
-            }
-            if (
-                $src === ''
-                && isset($serialized['o:thumbnail_urls'])
-                && is_array($serialized['o:thumbnail_urls'])
-            ) {
-                foreach (['large', 'medium', 'square', 'original'] as $thumbnailKey) {
-                    if (
-                        isset($serialized['o:thumbnail_urls'][$thumbnailKey])
-                        && is_string($serialized['o:thumbnail_urls'][$thumbnailKey])
-                    ) {
-                        $src = (string) $serialized['o:thumbnail_urls'][$thumbnailKey];
-                        break;
-                    }
-                }
-            }
-
-            if ($alt === '' && isset($serialized['o:alt_text']) && is_string($serialized['o:alt_text'])) {
-                $alt = (string) $serialized['o:alt_text'];
-            }
-            if ($label === '' && isset($serialized['o:name']) && is_string($serialized['o:name'])) {
-                $label = (string) $serialized['o:name'];
-            }
-        }
-
-        if ($src === '') {
-            continue;
-        }
-
-        $siteLogos[] = [
-            'src' => $src,
-            'alt' => $alt !== '' ? $alt : ($label !== '' ? $label : $headline),
-        ];
-    }
-}
-
-if ($siteLogos === []) {
-    $siteLogos = \GlobalLandingPage\Module::DEFAULT_LOGOS;
-}
+$featuredSites = isset($landingConfig['featuredSites']) && is_array($landingConfig['featuredSites'])
+    ? $landingConfig['featuredSites']
+    : [];
 
 $layout = $this->layout();
 if ($layout) {
-    $layout->setVariable('siteTitle', $headline);
-    $layout->setVariable('siteSubtitle', $lead);
-    $layout->setVariable('sitesLogos', $siteLogos);
-    $layout->setVariable('headerNavigation', $navItems);
+    $layout->setVariable('activeNav', 'home');
 }
 
 // Load Masonry and imagesLoaded libraries via CDN
