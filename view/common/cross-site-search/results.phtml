@@ -1,0 +1,139 @@
+<?php
+$fulltextSearch = trim((string) $this->params()->fromQuery('fulltext_search', ''));
+$hasItemResults = $responseItems && $responseItems->getTotalResults();
+
+// Load Masonry and imagesLoaded libraries for grid layouts.
+$this->headScript()->appendFile('https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
+$this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js');
+$this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
+
+// Ensure items grid uses a five-column layout on large screens.
+$this->headStyle()->appendStyle(<<<'CSS'
+#cross-site-items .resource {
+    width: 100%;
+}
+@media (min-width: 640px) {
+    #cross-site-items .resource {
+        width: calc(50% - 10px);
+    }
+}
+@media (min-width: 960px) {
+    #cross-site-items .resource {
+        width: calc(33.333% - 14px);
+    }
+}
+@media (min-width: 1280px) {
+    #cross-site-items .resource {
+        width: calc(20% - 16px);
+    }
+}
+CSS
+);
+?>
+
+<section class="container" id="cross-site-results" aria-labelledby="cross-site-results-heading">
+    <h2 class="title" id="cross-site-results-heading">
+        <?php if ($fulltextSearch !== ''): ?>
+            <?= sprintf(
+                $this->translate('Search results for "%s"'),
+                $this->escapeHtml($fulltextSearch)
+            ); ?>
+        <?php else: ?>
+            <?= $this->translate('Search results'); ?>
+        <?php endif; ?>
+    </h2>
+
+    <?php if ($hasItemResults): ?>
+        <div class="results-group" id="cross-site-items">
+            <h5 class="title"><?= $this->translate('Items'); ?></h5>
+            <div class="resource-grid" id="recent-items-grid">
+                <?php foreach ($responseItems->getContent() as $item): ?>
+                    <?php
+                    $itemTitle = (string) $item->displayTitle();
+                    $itemUrl = $item->url();
+                    $thumbnailUrl = null;
+
+                    $primaryMedia = $item->primaryMedia();
+                    if ($primaryMedia) {
+                        $thumbnailUrl = $primaryMedia->thumbnailUrl('large');
+                    } elseif (method_exists($item, 'thumbnailDisplayUrl')) {
+                        $thumbnailUrl = $item->thumbnailDisplayUrl('large');
+                    }
+
+                    $siteNames = [];
+                    $itemSites = [];
+                    try {
+                        $itemSites = $item->sites();
+                    } catch (\Exception $e) {
+                        $itemSites = [];
+                    }
+
+                    if (!empty($itemSites)) {
+                        $firstSite = reset($itemSites);
+                        $firstSiteSlug = method_exists($firstSite, 'slug') ? $firstSite->slug() : null;
+                        if ($firstSiteSlug) {
+                            $itemUrl = $item->siteUrl($firstSiteSlug);
+                        }
+
+                        foreach ($itemSites as $itemSite) {
+                            if (!$itemSite) {
+                                continue;
+                            }
+                            $siteNames[] = method_exists($itemSite, 'title') ? (string) $itemSite->title() : '';
+                        }
+                    }
+
+                    $siteLabel = '';
+                    if (!empty($siteNames)) {
+                        $siteLabel = implode(', ', array_filter($siteNames));
+                    }
+                    ?>
+                    <article class="resource">
+                        <a href="<?= $this->escapeHtmlAttr($itemUrl); ?>">
+                            <?php if ($thumbnailUrl): ?>
+                                <div class="resource__thumbnail">
+                                    <img
+                                        src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>"
+                                        alt="<?= $this->escapeHtmlAttr($itemTitle); ?>"
+                                        loading="lazy"
+                                    >
+                                </div>
+                            <?php else: ?>
+                                <div class="resource__thumbnail resource__thumbnail--placeholder">
+                                    <span class="resource__thumbnail-icon">&#128196;</span>
+                                </div>
+                            <?php endif; ?>
+                            <div class="resource__content">
+                                <h3 class="resource__title"><?= $this->escapeHtml($itemTitle); ?></h3>
+                                <?php if ($siteLabel !== ''): ?>
+                                    <div class="resource__meta">
+                                        <span class="resource__type"><?= $this->escapeHtml($siteLabel); ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+
+            <p>
+                <?= $this->hyperlink(
+                    sprintf(
+                        $this->translate('View all item results (%s total)'),
+                        $responseItems->getTotalResults()
+                    ),
+                    $this->url(
+                        null,
+                        ['action' => 'items'],
+                        ['query' => ['fulltext_search' => $fulltextSearch]],
+                        true
+                    )
+                ); ?>
+            </p>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!$hasItemResults): ?>
+        <p class="no-results"><?= $this->translate('No results found.'); ?></p>
+    <?php endif; ?>
+</section>

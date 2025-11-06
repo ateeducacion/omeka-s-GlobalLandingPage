@@ -150,8 +150,7 @@ class Module extends AbstractModule
                 if ($path !== '/' && $path !== '') {
                     return;
                 }
-
-                error_log("ENTRA AL HOME CUSTOM".get_class($routeEvent));
+                
                 $routeMatch = $routeEvent->getRouteMatch();
                 if ($routeMatch === null) {
                     return;

@@ -1,0 +1,120 @@
+<?php
+$fulltextSearch = trim((string) $this->params()->fromQuery('fulltext_search', ''));
+$this->headScript()->appendFile('https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
+$this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js');
+$this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
+
+$this->headStyle()->appendStyle(<<<'CSS'
+#cross-site-item-results .resource {
+    width: 100%;
+}
+@media (min-width: 640px) {
+    #cross-site-item-results .resource {
+        width: calc(50% - 10px);
+    }
+}
+@media (min-width: 960px) {
+    #cross-site-item-results .resource {
+        width: calc(33.333% - 14px);
+    }
+}
+@media (min-width: 1280px) {
+    #cross-site-item-results .resource {
+        width: calc(20% - 16px);
+    }
+}
+CSS
+);
+
+$hasItems = true;
+if (is_countable($items)) {
+    $hasItems = count($items) > 0;
+}
+?>
+
+<section class="container" id="cross-site-item-results" aria-labelledby="cross-site-item-results-heading">
+    <h2 class="title" id="cross-site-item-results-heading">
+        <?= sprintf(
+            $this->translate('Item results for "%s"'),
+            $this->escapeHtml($fulltextSearch)
+        ); ?>
+    </h2>
+    
+    <?= $this->pagination(); ?>
+
+    <?php if ($hasItems): ?>
+        <div class="resource-grid" id="recent-items-grid">
+            <?php foreach ($items as $item): ?>
+                <?php
+                $itemTitle = (string) $item->displayTitle();
+                $itemUrl = $item->url();
+                $thumbnailUrl = null;
+
+                $primaryMedia = $item->primaryMedia();
+                if ($primaryMedia) {
+                    $thumbnailUrl = $primaryMedia->thumbnailUrl('large');
+                } elseif (method_exists($item, 'thumbnailDisplayUrl')) {
+                    $thumbnailUrl = $item->thumbnailDisplayUrl('large');
+                }
+
+                $siteNames = [];
+                $itemSites = [];
+                try {
+                    $itemSites = $item->sites();
+                } catch (\Exception $e) {
+                    $itemSites = [];
+                }
+
+                if (!empty($itemSites)) {
+                    $firstSite = reset($itemSites);
+                    $firstSiteSlug = method_exists($firstSite, 'slug') ? $firstSite->slug() : null;
+                    if ($firstSiteSlug) {
+                        $itemUrl = $item->siteUrl($firstSiteSlug);
+                    }
+
+                    foreach ($itemSites as $itemSite) {
+                        if (!$itemSite) {
+                            continue;
+                        }
+                        $siteNames[] = method_exists($itemSite, 'title') ? (string) $itemSite->title() : '';
+                    }
+                }
+
+                $siteLabel = '';
+                if (!empty($siteNames)) {
+                    $siteLabel = implode(', ', array_filter($siteNames));
+                }
+                ?>
+                <article class="resource">
+                    <a href="<?= $this->escapeHtmlAttr($itemUrl); ?>">
+                        <?php if ($thumbnailUrl): ?>
+                            <div class="resource__thumbnail">
+                                <img
+                                    src="<?= $this->escapeHtmlAttr($thumbnailUrl); ?>"
+                                    alt="<?= $this->escapeHtmlAttr($itemTitle); ?>"
+                                    loading="lazy"
+                                >
+                            </div>
+                        <?php else: ?>
+                            <div class="resource__thumbnail resource__thumbnail--placeholder">
+                                <span class="resource__thumbnail-icon">&#128196;</span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="resource__content">
+                            <h3 class="resource__title"><?= $this->escapeHtml($itemTitle); ?></h3>
+                            <?php if ($siteLabel !== ''): ?>
+                                <div class="resource__meta">
+                                    <span class="resource__type"><?= $this->escapeHtml($siteLabel); ?></span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <p class="no-results"><?= $this->translate('No items found.'); ?></p>
+    <?php endif; ?>
+
+    <?= $this->pagination(); ?>
+</section>

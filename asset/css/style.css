@@ -1078,6 +1078,13 @@ button.remove-value:focus {
   cursor: pointer;
 }
 
+.pagination-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
 input[type=text],
 input[type=email],
 input[type=url],
