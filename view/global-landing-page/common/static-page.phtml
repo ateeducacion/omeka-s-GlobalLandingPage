@@ -1,0 +1,12 @@
+<?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ * @var Omeka\Api\Representation\SitePageRepresentation $page
+ */
+?>
+
+<section class="container" id="static-page">
+    <div class="page-body">
+        <?php echo $this->pageLayout()->render($page); ?>
+    </div>
+</section>

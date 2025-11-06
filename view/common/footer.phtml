@@ -4,31 +4,11 @@
  */
 ?>
 <footer class="main-footer">
-	<!-- Footer Top -->
-	<!-- Footer Bottom -->
-	<div class="main-footer__bottom">
-		<div class="container main-footer__bottom-container ">
-		
-			<!-- Copyright -->
-			<div class="main-footer__copyright">
-				<div>
-                    <span>© Gobierno de Canarias</span>
-                </div>
-
-                <div>
-                    <span>
-                    <a href="https://www.gobiernodecanarias.org/principal/avisolegal.html">
-                        Aviso legal
-                    </a>
-                    </span>
-                    <span>
-                    <a href="https://www.gobiernodecanarias.org/eucd/politica_privacidad/">
-                        Política de privacidad
-                    </a>
-                    </span>
-                </div>							
+    <div class="main-footer__bottom">
+        <div class="container main-footer__bottom-container">
+            <div class="main-footer__copyright">
+                <?php echo $this->footerHtml; ?>
             </div>
-		</div>
-	</div>
-
+        </div>
+    </div>
 </footer>

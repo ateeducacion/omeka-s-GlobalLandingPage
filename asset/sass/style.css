@@ -1079,6 +1079,13 @@ button.remove-value:focus {
   cursor: pointer;
 }
 
+.pagination-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
 input[type=text],
 input[type=email],
 input[type=url],
@@ -1294,6 +1301,9 @@ body.main-header--center {
     padding: 0 30px;
   }
 }
+.container#static-page {
+  max-width: 1440px;
+}
 
 #main-content {
   padding-top: 2rem;
@@ -1407,31 +1417,47 @@ body.main-header--center {
   transition: top 0.3s ease-out;
 }
 .main-header--inline .main-header__top-bar {
-  background: url(https://www3.gobiernodecanarias.org/medusa/wiki/images/1/1d/Logo_GobCan_claim_color.png) no-repeat;
+  /*background: url($top_bar_logo) no-repeat;
   background-size: auto 70px;
-  background-position: 1.8% center;
-  min-height: 80px;
+  background-position: calc(1.8%) center;*/
+  max-height: 70px;
 }
 .main-header--center .main-header__top-bar {
-  background: url(https://www3.gobiernodecanarias.org/medusa/wiki/images/1/1d/Logo_GobCan_claim_color.png) no-repeat;
-  background-size: auto 70px;
-  background-position: calc(50% - 25px) calc(50% - 25px);
-  min-height: 80px;
+  /*background-size: auto 70px;
+  background-position: calc(50% - 25px) calc(50% - 25px);*/
+  max-height: 70px;
 }
 .main-header__top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-top: 10px;
-  padding-bottom: 10px;
+  padding-bottom: 0px;
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
 }
 @media (min-width: 1024px) {
   .main-header__top-bar {
-    align-items: flex-end;
-    justify-content: flex-end;
+    align-items: center;
+  }
+}
+.main-header__top-bar-logo {
+  width: auto;
+  height: auto;
+}
+@media (min-width: 1024px) {
+  .main-header__top-bar-logo {
+    height: auto;
+  }
+}
+.main-header__top-bar-logo img {
+  height: 50px;
+  width: auto;
+}
+@media (min-width: 1024px) {
+  .main-header__top-bar-logo img {
+    height: 60px;
   }
 }
 .main-header__advanced-search {
@@ -1445,6 +1471,7 @@ body.main-header--center {
 @media (min-width: 1024px) {
   .main-header__search-form form {
     width: 265px;
+    max-height: 40px;
   }
 }
 .main-header__search-form input {
@@ -2409,6 +2436,9 @@ body.menu-drawer-toggled {
   #local-contexts-content {
     padding: 0 30px;
   }
+}
+#local-contexts-content#static-page {
+  max-width: 1440px;
 }
 #local-contexts-content .local-contexts-notice {
   padding: 1rem;

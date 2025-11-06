@@ -64,3 +64,10 @@ button.remove-value {
 .button {
     cursor: pointer;
 }
+
+.pagination-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}

@@ -15,7 +15,6 @@ class LandingController extends AbstractActionController
             $layout->setTemplate('global-landing-page/layout');
         }
 
-        // Fetch 10 most recent items
         $recentItems = [];
         try {
             $response = $this->api()->search('items', [
@@ -29,26 +28,6 @@ class LandingController extends AbstractActionController
             $recentItems = [];
         }
 
-        // Fetch featured sites
-        // TODO: Add a settings field to select featured sites
-        $featuredSitesIds = [];
-        $featuredSites = [];
-        try {
-            $response = $this->api()->search('sites', [
-                'sort_by' => 'title',
-                'sort_order' => 'asc',
-            ]);
-            $allSites = $response->getContent();
-            
-            // Filter sites that begin with 'Área'
-            foreach ($allSites as $site) {
-                //if (in_array($site->Id(),$featuredSitesIds)) {
-                    $featuredSites[] = $site;
-               // }
-            }
-        } catch (\Exception $exception) {
-            $featuredSites = [];
-        }
 
         $viewModel = new ViewModel([
             'headline' => 'Servicio Mediateca', // @translate
@@ -56,7 +35,6 @@ class LandingController extends AbstractActionController
             'primaryActionLabel' => 'Explore Collections', // @translate
             'primaryActionUrl' => '#collections',
             'recentItems' => $recentItems,
-            'featuredSites' => $featuredSites,
         ]);
 
         $viewModel->setTemplate('omeka/index/index');

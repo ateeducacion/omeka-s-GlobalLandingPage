@@ -5,38 +5,20 @@
  * @var string $query
  */
 
-$headline = $this->headline ?? $this->translate('Servicio Mediateca'); // @translate
-$lead = $this->lead ?? $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
+$landingConfig = $this->landingPageConfig();
+$headline = isset($landingConfig['headline']) && is_string($landingConfig['headline'])
+    ? $landingConfig['headline']
+    : $this->translate('Servicio Mediateca'); // @translate
+$lead = isset($landingConfig['lead']) && is_string($landingConfig['lead'])
+    ? $landingConfig['lead']
+    : $this->translate('Repositorio de medios audiovisuales educativos.'); // @translate
 $primaryActionLabel = $this->primaryActionLabel ?? $this->translate('Browse Collections'); // @translate
 $primaryActionUrl = $this->primaryActionUrl ?? '#collections';
-$sitesLogos = [];
-$sitesLogos[] = $this->assetUrl('img/logo-mediateca.svg', 'GlobalLandingPage');
-$sitesLogos[] = $this->assetUrl('img/ate_logo.png', 'GlobalLandingPage');
-$sitesLogos[] = $this->assetUrl('img/logo-cauce.png', 'GlobalLandingPage');
 $heroImage = $this->heroImage ?? null;
 
 $layout = $this->layout();
 if ($layout) {
-    $layout->setVariable('siteTitle', $headline);
-    $layout->setVariable('siteSubtitle', $lead);
-    $layout->setVariable('sitesLogos', $sitesLogos);
-    $layout->setVariable('headerNavigation', [
-        [
-            'label' => $this->translate('Inicio'),
-            'url' => $this->url('globallandingpage', [], true),
-            'active' => false
-        ],
-        [
-            'label' => $this->translate('Explorar Canales'),
-            'url' => $this->url('globallandingpage-sites', [], true),
-            'active' => true
-        ],
-        [
-            'label' => $this->translate('Servicio Mediateca'),
-            'url' => 'https://www3.gobiernodecanarias.org/medusa/mediateca/', //$this->url('globallandingpage-sites', [], true),
-            'active' => false
-        ],
-    ]);
+    $layout->setVariable('activeNav', 'explore');
 }
 
 // Load Masonry and imagesLoaded libraries via CDN

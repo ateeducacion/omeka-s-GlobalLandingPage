@@ -24,29 +24,35 @@ $this->headLink()->appendStylesheet($this->assetUrl('css/style.css', 'GlobalLand
 $this->headScript()->appendFile($this->assetUrl('js/navigation.js', 'GlobalLandingPage'));
 $this->headScript()->appendFile($this->assetUrl('js/script.js', 'GlobalLandingPage'));
 
-$colorDefaults = [
-    'primary_color' => '#e77f11',
-    'secondary_color' => '#394f68',
-    'accent_color' => '#394f68',
-];
+$primaryColor = $this->setting(
+    \GlobalLandingPage\Module::SETTING_PRIMARY_COLOR,
+    \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_PRIMARY_COLOR]
+);
+$secondaryColor = $this->setting(
+    \GlobalLandingPage\Module::SETTING_SECONDARY_COLOR,
+    \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_SECONDARY_COLOR]
+);
+$accentColor = $this->setting(
+    \GlobalLandingPage\Module::SETTING_ACCENT_COLOR,
+    \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_ACCENT_COLOR]
+);
 
-$settingsFile = dirname(__DIR__, 2) . '/config/settings.ini';
-if (is_readable($settingsFile)) {
-    $settingsData = @parse_ini_file($settingsFile, true, INI_SCANNER_RAW);
-    if (is_array($settingsData)) {
-        $colorSection = $settingsData['site_settings'] ?? $settingsData['settings'] ?? [];
-        foreach ($colorDefaults as $colorKey => $defaultValue) {
-            $value = $colorSection[$colorKey . '.value'] ?? $colorSection[$colorKey . '.default'] ?? null;
-            if (is_string($value) && $value !== '') {
-                $colorDefaults[$colorKey] = $value;
-            }
-        }
-    }
+if (!is_string($primaryColor) || $primaryColor === '') {
+    $primaryColor = \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_PRIMARY_COLOR];
 }
 
-$primaryColor = (string) $colorDefaults['primary_color'];
-$secondaryColor = (string) $colorDefaults['secondary_color'];
-$accentColor = (string) $colorDefaults['accent_color'];
+if (!is_string($secondaryColor) || $secondaryColor === '') {
+    $secondaryColor = \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_SECONDARY_COLOR];
+}
+
+if (!is_string($accentColor) || $accentColor === '') {
+    $accentColor = \GlobalLandingPage\Module::DEFAULT_COLORS[\GlobalLandingPage\Module::SETTING_ACCENT_COLOR];
+}
+
+$footerHtml = $this->setting(\GlobalLandingPage\Module::SETTING_FOOTER_HTML, '');
+if (!is_string($footerHtml)) {
+    $footerHtml = '';
+}
 
 $headerModifier = (string) ($this->headerModifier ?? 'main-header--inline');
 $bodyClass = trim(sprintf(
@@ -55,14 +61,77 @@ $bodyClass = trim(sprintf(
     isset($this->bodyClass) ? (string) $this->bodyClass : ''
 ));
 
-$defaultNavItems = [
-    ['label' => $this->translate('Home'), 'url' => $this->url('globallandingpage', [], true), 'active' => true],
-];
-$navItems = $this->headerNavigation ?? $defaultNavItems;
+$landingConfig = $this->landingPageConfig();
+$headline = isset($landingConfig['headline']) && is_string($landingConfig['headline'])
+    ? $landingConfig['headline']
+    : $this->translate('Servicio Mediateca');
+$lead = isset($landingConfig['lead']) && is_string($landingConfig['lead'])
+    ? $landingConfig['lead']
+    : $this->translate('Repositorio de medios audiovisuales educativos.');
+$sitesLogosFromConfig = isset($landingConfig['sitesLogos']) && is_iterable($landingConfig['sitesLogos'])
+    ? $landingConfig['sitesLogos']
+    : [];
+$navItemsFromConfig = isset($landingConfig['navItems']) && is_iterable($landingConfig['navItems'])
+    ? $landingConfig['navItems']
+    : [];
+$topBarConfig = isset($landingConfig['topBar']) && is_array($landingConfig['topBar'])
+    ? $landingConfig['topBar']
+    : [];
 
-$siteTitle = (string) ($this->siteTitle ?? $this->translate('Global Landing Page'));
-$siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $this->translate('A self-contained welcome experience for Omeka S.');
-$sitesLogos = $this->sitesLogos ?? null;
+$activeNav = isset($this->activeNav) ? (string) $this->activeNav : 'home';
+$navItems = [];
+foreach ($navItemsFromConfig as $item) {
+    if (!is_array($item)) {
+        continue;
+    }
+    $label = isset($item['label']) ? (string) $item['label'] : '';
+    $url = isset($item['url']) ? (string) $item['url'] : '';
+    if ($label === '' || $url === '') {
+        continue;
+    }
+    $slug = isset($item['slug']) ? (string) $item['slug'] : '';
+    $navItems[] = [
+        'label' => $label,
+        'url' => $url,
+        'active' => $slug === $activeNav,
+    ];
+}
+if ($navItems === []) {
+    $navItems = [
+        [
+            'label' => $this->translate('Inicio'),
+            'url' => $this->url('globallandingpage', [], true),
+            'active' => $activeNav === 'home',
+        ],
+        [
+            'label' => $this->translate('Explorar Canales'),
+            'url' => $this->url('globallandingpage-sites', [], true),
+            'active' => $activeNav === 'explore',
+        ],
+    ];
+}
+
+$siteTitle = isset($this->siteTitle) ? (string) $this->siteTitle : $headline;
+$siteSubtitle = isset($this->siteSubtitle) ? (string) $this->siteSubtitle : $lead;
+$sitesLogos = $this->sitesLogos ?? $sitesLogosFromConfig;
+$showTopBar = isset($this->showTopBar)
+    ? (bool) $this->showTopBar
+    : (isset($topBarConfig['show']) ? (bool) $topBarConfig['show'] : true);
+$topBarLogo = isset($this->topBarLogo) ? $this->topBarLogo : ($topBarConfig['logo'] ?? null);
+
+$layout = $this->layout();
+if ($layout) {
+    $layout->setVariable('landingConfig', $landingConfig);
+    $layout->setVariable('headline', $headline);
+    $layout->setVariable('lead', $lead);
+    $layout->setVariable('sitesLogos', $sitesLogos);
+    $layout->setVariable('navItems', $navItems);
+    $layout->setVariable('showTopBar', $showTopBar);
+    $layout->setVariable('topBarLogo', $topBarLogo);
+    if (isset($landingConfig['featuredSites']) && is_array($landingConfig['featuredSites'])) {
+        $layout->setVariable('featuredSites', $landingConfig['featuredSites']);
+    }
+}
 ?>
 <?= $this->doctype(); ?>
 <html lang="<?= $this->escapeHtmlAttr($lang); ?>">
@@ -94,6 +163,8 @@ $sitesLogos = $this->sitesLogos ?? null;
         'siteSubtitle' => $siteSubtitle,
         'sitesLogos' => $sitesLogos,
         'headerModifier' => $headerModifier,
+        'showTopBar' => $showTopBar,
+        'topBarLogo' => $topBarLogo,
     ]); ?>
 
     <div id="menu-drawer" class="menu-drawer" aria-hidden="true" inert>
@@ -111,7 +182,15 @@ $sitesLogos = $this->sitesLogos ?? null;
         <?= $this->content; ?>
     </main>
 
-    <?= $this->partial('global-landing-page/common/footer'); ?>
+    <?php if ($footerHtml == ''): ?>
+        <?= $this->partial('global-landing-page/common/footer',[
+            'footerHtml'=> 'Global landing page footer' // @translate
+        ]); ?>
+    <?php else: ?>
+        <?= $this->partial('global-landing-page/common/footer',[
+            'footerHtml'=> $footerHtml
+        ]); ?>
+    <?php endif; ?>
 
     <?= $this->inlineScript(); ?>
 </body>
