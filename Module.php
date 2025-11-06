@@ -14,6 +14,7 @@ use Laminas\View\Resolver\TemplateMapResolver;
 use Laminas\View\Resolver\TemplatePathStack;
 use Omeka\Module\AbstractModule;
 use Omeka\Api\Manager as ApiManager;
+use Omeka\HtmlPurifier;
 use Omeka\Settings\Settings;
 use Omeka\Stdlib\Message;
 
@@ -111,6 +112,10 @@ class Module extends AbstractModule
                 $acl->addResource(Controller\SiteController::class);
             }
 
+            if (!$acl->hasResource(Controller\StaticPageController::class)) {
+                $acl->addResource(Controller\StaticPageController::class);
+            }
+
             $acl->allow(
                 null,
                 Controller\LandingController::class,
@@ -120,6 +125,11 @@ class Module extends AbstractModule
                 null,
                 Controller\SiteController::class,
                 'explore'
+            );
+            $acl->allow(
+                null,
+                Controller\StaticPageController::class,
+                'show'
             );
         }
 
@@ -150,7 +160,7 @@ class Module extends AbstractModule
                 if ($path !== '/' && $path !== '') {
                     return;
                 }
-                
+
                 $routeMatch = $routeEvent->getRouteMatch();
                 if ($routeMatch === null) {
                     return;
@@ -186,6 +196,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         /** @var Settings $settings */
         $settings = $services->get('Omeka\Settings');
+        /** @var HtmlPurifier|null $purifier */
         /** @var ApiManager $apiManager */
         $apiManager = $services->get('Omeka\ApiManager');
 
@@ -286,6 +297,10 @@ class Module extends AbstractModule
         /** @var ApiManager $apiManager */
         $apiManager = $services->get('Omeka\ApiManager');
 
+        /** @var \Omeka\HtmlPurifier $purifier */
+        $purifier = $services->get('Omeka\HtmlPurifier');
+
+
         $form = new ConfigForm();
         $form->setSettings($settings);
         $form->setOption('api_manager', $apiManager);
@@ -328,6 +343,7 @@ class Module extends AbstractModule
         }
 
         $footerHtml = (string) ($data[self::SETTING_FOOTER_HTML] ?? '');
+        $footerCopyright = $purifier->purify($footerHtml);
         $primaryColor = $this->normalizeColor(
             $data[self::SETTING_PRIMARY_COLOR] ?? null,
             self::DEFAULT_COLORS[self::SETTING_PRIMARY_COLOR]
@@ -358,7 +374,7 @@ class Module extends AbstractModule
         $settings->set(self::SETTING_FEATURED_SITES, $featuredSites);
         $settings->set(self::SETTING_BASE_SITE, $baseSiteSlug);
         $settings->set(self::SETTING_NAV_PAGES, $navPages);
-        $settings->set(self::SETTING_FOOTER_HTML, $footerHtml);
+        $settings->set(self::SETTING_FOOTER_HTML, $footerCopyright);
         $settings->set(self::SETTING_PRIMARY_COLOR, $primaryColor);
         $settings->set(self::SETTING_SECONDARY_COLOR, $secondaryColor);
         $settings->set(self::SETTING_ACCENT_COLOR, $accentColor);

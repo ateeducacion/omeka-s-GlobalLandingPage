@@ -117,8 +117,8 @@ class ConfigForm extends Form
             'name' => 'globallandingpage_footer_html',
             'type' => Textarea::class,
             'options' => [
-                'label' => 'Footer HTML', // @translate
-                'info' => 'Custom HTML to render inside the global footer.', // @translate
+                'label' => 'Footer Copyright HTML', // @translate
+                'info' => 'Custom HTML to render inside the footer.', // @translate
             ],
             'attributes' => [
                 'id' => 'globallandingpage_footer_html',

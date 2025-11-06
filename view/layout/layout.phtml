@@ -182,12 +182,14 @@ if ($layout) {
         <?= $this->content; ?>
     </main>
 
-    <?php if ($footerHtml !== ''): ?>
-        <footer class="global-footer">
-            <?= $footerHtml ?>
-        </footer>
+    <?php if ($footerHtml == ''): ?>
+        <?= $this->partial('global-landing-page/common/footer',[
+            'footerHtml'=> 'Global landing page footer' // @translate
+        ]); ?>
     <?php else: ?>
-        <?= $this->partial('global-landing-page/common/footer'); ?>
+        <?= $this->partial('global-landing-page/common/footer',[
+            'footerHtml'=> $footerHtml
+        ]); ?>
     <?php endif; ?>
 
     <?= $this->inlineScript(); ?>

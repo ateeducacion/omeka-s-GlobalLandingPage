@@ -99,7 +99,7 @@ class LandingPageConfig extends AbstractHelper
                 $navItems[] = [
                     'label' => $label,
                     'url' => $view->url(
-                        'site/page',
+                        'globallandingpage-static',
                         ['site-slug' => $baseSiteSlug, 'page-slug' => $slug],
                         ['force_canonical' => true]
                     ),

@@ -30,12 +30,24 @@ return [
                 ],
                 'may_terminate' => true,
             ],
+            'globallandingpage-static' => [
+                'type' => 'Laminas\Router\Http\Segment',
+                'options' => [
+                    'route' => '/global-page/:site-slug/:page-slug',
+                    'defaults' => [
+                        'controller' => Controller\StaticPageController::class,
+                        'action' => 'show',
+                    ],
+                ],
+                'may_terminate' => true,
+            ],
         ],
     ],
     'controllers' => [
         'factories' => [
             Controller\LandingController::class => InvokableFactory::class,
             Controller\SiteController::class => InvokableFactory::class,
+            Controller\StaticPageController::class => InvokableFactory::class,
         ],
     ],
     'view_helpers' => [
@@ -62,6 +74,7 @@ return [
             'global-landing-page/layout' => dirname(__DIR__) . '/view/layout/layout.phtml',
             'global-landing-page/common/header' => dirname(__DIR__) . '/view/common/header.phtml',
             'global-landing-page/common/footer' => dirname(__DIR__) . '/view/common/footer.phtml',
+            'global-landing-page/common/static-page' => dirname(__DIR__) . '/view/global-landing-page/common/static-page.phtml',
         ],
     ],
     'translator' => [
