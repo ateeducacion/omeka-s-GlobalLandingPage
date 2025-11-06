@@ -1295,6 +1295,9 @@ body.main-header--center {
     padding: 0 30px;
   }
 }
+.container#static-page {
+  max-width: 1440px;
+}
 
 #main-content {
   padding-top: 2rem;
@@ -2424,6 +2427,9 @@ body.menu-drawer-toggled {
   #local-contexts-content {
     padding: 0 30px;
   }
+}
+#local-contexts-content#static-page {
+  max-width: 1440px;
 }
 #local-contexts-content {
   color: #666;
