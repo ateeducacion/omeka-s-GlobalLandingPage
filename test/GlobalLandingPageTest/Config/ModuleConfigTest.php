@@ -48,7 +48,8 @@ class ModuleConfigTest extends TestCase
                 'global-landing-page/layout' => dirname(__DIR__, 3) . '/view/layout/layout.phtml',
                 'global-landing-page/common/header' => dirname(__DIR__, 3) . '/view/common/header.phtml',
                 'global-landing-page/common/footer' => dirname(__DIR__, 3) . '/view/common/footer.phtml',
-                'global-landing-page/common/static-page' => dirname(__DIR__, 3) . '/view/global-landing-page/common/static-page.phtml',
+                'global-landing-page/common/static-page' => dirname(__DIR__, 3) .
+                                                        '/view/global-landing-page/common/static-page.phtml',
             ],
             $viewManager['template_map']
         );

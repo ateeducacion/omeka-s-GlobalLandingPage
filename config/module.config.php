@@ -74,7 +74,8 @@ return [
             'global-landing-page/layout' => dirname(__DIR__) . '/view/layout/layout.phtml',
             'global-landing-page/common/header' => dirname(__DIR__) . '/view/common/header.phtml',
             'global-landing-page/common/footer' => dirname(__DIR__) . '/view/common/footer.phtml',
-            'global-landing-page/common/static-page' => dirname(__DIR__) . '/view/global-landing-page/common/static-page.phtml',
+            'global-landing-page/common/static-page' => dirname(__DIR__) .
+                                                    '/view/global-landing-page/common/static-page.phtml',
         ],
     ],
     'translator' => [

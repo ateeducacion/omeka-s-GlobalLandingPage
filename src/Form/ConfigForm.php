@@ -102,7 +102,8 @@ class ConfigForm extends Form
             'type' => Select::class,
             'options' => [
                 'label' => 'Navigation pages', // @translate
-                'info' => 'Pick the pages from the selected site that should appear in the global header navigation.', // @translate
+                'info' => 'Pick the pages from the selected site that should '.
+                        'appear in the global header navigation.', // @translate
                 'empty_option' => '',
                 'value_options' => [],
                 'disable_inarray_validator' => true,
@@ -483,7 +484,8 @@ class ConfigForm extends Form
                         'options' => [
                             'pattern' => self::COLOR_REGEX,
                             'messages' => [
-                                RegexValidator::NOT_MATCH => 'Please provide a valid hex color (e.g. #004488).', // @translate
+                                RegexValidator::NOT_MATCH => 'Please provide a valid '.
+                                                            'hex color (e.g. #004488).', // @translate
                             ],
                         ],
                     ],
