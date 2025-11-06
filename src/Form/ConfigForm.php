@@ -34,15 +34,18 @@ class ConfigForm extends Form
 
     public function init(): void
     {
-        parent::init();
 
         $this->resolveApiManager();
         $featuredSiteOptions = $this->buildFeaturedSiteOptions();
 
-        $this->setName('globallandingpage-config');
-        $this->setAttribute('id', 'globallandingpage-config');
-        $this->setAttribute('method', 'post');
-        $this->setAttribute('enctype', 'multipart/form-data');
+        if (method_exists($this, 'setName')) {
+            $this->setName('globallandingpage-config');
+        }
+        if (method_exists($this, 'setAttribute')) {
+            $this->setAttribute('id', 'globallandingpage-config');
+            $this->setAttribute('method', 'post');
+            $this->setAttribute('enctype', 'multipart/form-data');
+        }
 
         $this->add([
             'name' => 'globallandingpage_use_custom',
@@ -180,7 +183,9 @@ class ConfigForm extends Form
             ]);
         }
 
-        $this->setInputFilter($this->buildInputFilter());
+        if (class_exists(InputFilter::class) && method_exists($this, 'setInputFilter')) {
+            $this->setInputFilter($this->buildInputFilter());
+        }
         $this->populateNavigationPagesOptions($this->getStoredBaseSiteId());
     }
 
@@ -513,10 +518,12 @@ class ConfigForm extends Form
             return $this->apiManager;
         }
 
-        $option = $this->getOption('api_manager');
-        if ($option instanceof ApiManager) {
-            $this->apiManager = $option;
-            return $this->apiManager;
+        if (method_exists($this, 'getOption')) {
+            $option = $this->getOption('api_manager');
+            if ($option instanceof ApiManager) {
+                $this->apiManager = $option;
+                return $this->apiManager;
+            }
         }
 
         return null;

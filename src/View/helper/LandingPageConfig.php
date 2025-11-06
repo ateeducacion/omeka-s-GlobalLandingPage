@@ -200,8 +200,7 @@ class LandingPageConfig extends AbstractHelper
 
             if ($src === '' && isset($serialized['o:thumbnail_urls']) && is_array($serialized['o:thumbnail_urls'])) {
                 foreach (['large', 'medium', 'square', 'original'] as $thumbnailKey) {
-                    if (
-                        isset($serialized['o:thumbnail_urls'][$thumbnailKey])
+                    if (isset($serialized['o:thumbnail_urls'][$thumbnailKey])
                         && is_string($serialized['o:thumbnail_urls'][$thumbnailKey])
                     ) {
                         $src = (string) $serialized['o:thumbnail_urls'][$thumbnailKey];

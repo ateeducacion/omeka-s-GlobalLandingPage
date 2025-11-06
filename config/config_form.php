@@ -17,11 +17,11 @@ echo $this->formCollection($form, false);
 
 $logoPreview = is_array($selectedLogos ?? null) ? $selectedLogos : [];
 if ($logoPreview !== []) :
-?>
+    ?>
 <div class="glp-admin-logo-preview">
     <h3><?= $this->translate('Current header logos'); ?></h3>
     <ul class="glp-admin-logo-preview__list">
-        <?php foreach ($logoPreview as $logo): ?>
+        <?php foreach ($logoPreview as $logo) : ?>
             <li class="glp-admin-logo-preview__item">
                 <figure>
                     <img
@@ -29,7 +29,7 @@ if ($logoPreview !== []) :
                         alt="<?= $this->escapeHtmlAttr($logo['alt'] ?? ''); ?>"
                         loading="lazy"
                     >
-                    <?php if (!empty($logo['label'])): ?>
+                    <?php if (!empty($logo['label'])) : ?>
                         <figcaption><?= $this->escapeHtml($logo['label']); ?></figcaption>
                     <?php endif; ?>
                 </figure>
@@ -46,5 +46,5 @@ if ($logoPreview !== []) :
         <?php endforeach; ?>
     </ul>
 </div>
-<?php
+    <?php
 endif;
