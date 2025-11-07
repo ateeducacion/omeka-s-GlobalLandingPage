@@ -84,8 +84,8 @@ package:
 	echo "Creating ZIP archive: GlobalLandingPage-$(VERSION).zip..."; \
 	composer archive --format=zip --file="GlobalLandingPage-$(VERSION)-raw"; \
 	@echo "Repacking into proper structure..."
-	mkdir -p tmpzip/IsolatedSites && unzip -q IsolatedSites-$(VERSION)-raw.zip -d tmpzip/IsolatedSites && \
-	cd tmpzip && zip -qr ../IsolatedSites-$(VERSION).zip IsolatedSites && cd .. && rm -rf tmpzip IsolatedSites-$(VERSION)-raw.zip
+	mkdir -p tmpzip/GlobalLandingPage && unzip -q GlobalLandingPage-$(VERSION)-raw.zip -d tmpzip/GlobalLandingPage && \
+	cd tmpzip && zip -qr ../GlobalLandingPage-$(VERSION).zip GlobalLandingPage && cd .. && rm -rf tmpzip GlobalLandingPage-$(VERSION)-raw.zip
 	echo "Restoring version to $${ORIGINAL_VERSION} in module.ini..."; \
 	$(SED_INPLACE) "s/^\([[:space:]]*version[[:space:]]*=[[:space:]]*\).*$$/\1\"$${ORIGINAL_VERSION}\"/" config/module.ini
 
