@@ -11,7 +11,7 @@ return [
             'globallandingpage' => [
                 'type' => 'Laminas\Router\Http\Literal',
                 'options' => [
-                    'route' => '/',
+                    'route' => '/global-landing',
                     'defaults' => [
                         'controller' => Controller\LandingController::class,
                         'action' => 'index',

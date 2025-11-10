@@ -68,7 +68,7 @@ class LandingPageConfig extends AbstractHelper
         $navItems = [
             [
                 'label' => $translate('Inicio'),
-                'url' => $view->url('globallandingpage', [], true),
+                'url' => $view->url('top', [], true),
                 'slug' => 'home',
             ],
             [
