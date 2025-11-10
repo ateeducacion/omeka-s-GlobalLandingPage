@@ -83,7 +83,7 @@ package:
 	$(SED_INPLACE) 's/^\([[:space:]]*version[[:space:]]*=[[:space:]]*\).*$$/\1"$(VERSION)"/' config/module.ini; \
 	echo "Creating ZIP archive: GlobalLandingPage-$(VERSION).zip..."; \
 	composer archive --format=zip --file="GlobalLandingPage-$(VERSION)-raw"; \
-	@echo "Repacking into proper structure..."
+	echo "Repacking into proper structure..."
 	mkdir -p tmpzip/GlobalLandingPage && unzip -q GlobalLandingPage-$(VERSION)-raw.zip -d tmpzip/GlobalLandingPage && \
 	cd tmpzip && zip -qr ../GlobalLandingPage-$(VERSION).zip GlobalLandingPage && cd .. && rm -rf tmpzip GlobalLandingPage-$(VERSION)-raw.zip
 	echo "Restoring version to $${ORIGINAL_VERSION} in module.ini..."; \
