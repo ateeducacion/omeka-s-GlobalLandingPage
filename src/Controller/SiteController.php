@@ -34,7 +34,8 @@ class SiteController extends AbstractActionController
                 $sites = array_values(array_filter($sites, function ($site) use ($normalizedQuery) {
                     $title = $site !== null ? $this->normalizeString((string) $site->title()) : '';
                     $slug = $site !== null ? $this->normalizeString((string) $site->slug()) : '';
-                    return mb_strpos($title, $normalizedQuery) !== false || mb_strpos($slug, $normalizedQuery) !== false;
+                    return mb_strpos($title, $normalizedQuery) !== false
+                        || mb_strpos($slug, $normalizedQuery) !== false;
                 }));
             }
         } catch (\Exception $exception) {
