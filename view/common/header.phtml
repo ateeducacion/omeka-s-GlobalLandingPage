@@ -101,6 +101,8 @@ $this->inlineScript()->appendScript(sprintf(
     json_encode($this->translate('Close menu')),
     json_encode($this->translate('Back'))
 ));
+
+
 ?>
 <header class="main-header <?= $this->escapeHtmlAttr($headerModifier); ?>" role="banner">
     <?php if ($showTopBar): ?>
@@ -114,11 +116,16 @@ $this->inlineScript()->appendScript(sprintf(
                     >
                 </div>
             <?php endif; ?>
-            <div class="main-header__search-form">
-                <?= $this->partial(
-                    'common/cross-site-search/fulltext-form.phtml',
-                    ['action' => $this->url('search', ['action' => 'results'], true)]
-                ); ?>
+            <div class="main-header__actions-group">
+                <div class="main-header__search-form">
+                    <?= $this->partial(
+                        'common/cross-site-search/fulltext-form.phtml',
+                        ['action' => $this->url('search', ['action' => 'results'], true)]
+                    ); ?>
+                </div>
+                <div class="main-header__user-account">
+                    <?= $this->partial('common/user-account-icon.phtml');?>
+                </div>
             </div>
         </div>
         <hr>
