@@ -1,0 +1,22 @@
+<?php
+/**
+ * User Account Icon Template
+ *
+ * Displays a Material Icons account_circle icon that links to /admin when user is logged in.
+ * Displays a Material Icons login icon with text when user is not logged in.
+ * Can be reused across different parts of the application.
+ *
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ */
+
+// Check if user is logged in using Omeka's identity helper
+$identity = $this->identity();
+$isLoggedIn = $identity !== null;
+?>
+
+<?php if ($isLoggedIn): ?>
+    <a href="/admin" class="user-account-link" title="<?= $this->escapeHtmlAttr($this->translate('Admin Panel')); ?>">
+        <span class="material-symbols-outlined" style="font-size:45px; line-height:2">account_circle</span>
+    </a>
+<?php endif; ?>
+
