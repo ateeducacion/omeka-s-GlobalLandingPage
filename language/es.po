@@ -1,87 +1,275 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobalLandingPage\n"
-"POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2025-01-01 00:00+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-14 10:26+0000\n"
+"PO-Revision-Date: 2026-01-14 10:30+0000\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# Demo fields
-#: src/Form/ConfigForm.php:18
-msgid "DEMO: enable feature"
-msgstr "DEMO: activar característica"
+#: config/config_form.php:22
+msgid "Current header logos"
+msgstr "Logos de cabecera actuales"
 
-#: src/Form/ConfigForm.php:19
-msgid "Demo field to test checkbox behavior."
-msgstr "Campo de demostración para probar el comportamiento del checkbox."
+#: config/config_form.php:39
+msgid "Default logo"
+msgstr "Logo por defecto"
 
-#: src/Form/ConfigForm.php:34
-msgid "DEMO: free text"
-msgstr "DEMO: texto libre"
+#: config/config_form.php:40
+#, php-format
+msgid "Asset #%d"
+msgstr "Recurso #%d"
 
-#: src/Form/ConfigForm.php:35
-msgid "Demo field to test single-line input."
-msgstr "Campo de demostración para probar la entrada de una sola línea."
+#: Module.php:257
+msgid "Loading..."
+msgstr "Cargando..."
 
-#: src/Form/ConfigForm.php:47
-msgid "DEMO: textarea"
-msgstr "DEMO: área de texto"
+#: Module.php:260
+msgid "Select a site to load pages."
+msgstr "Selecciona un sitio para cargar las páginas."
 
-#: src/Form/ConfigForm.php:48
-msgid "Demo field to test multi-line input."
-msgstr "Campo de demostración para probar la entrada multilínea."
+#: view/global-landing-page/site/explore.phtml:11 view/layout/layout.phtml:69
+#: view/omeka/index/index.phtml:14 src/View/Helper/LandingPageConfig.php:22
+msgid "Servicio Mediateca"
+msgstr "Servicio Mediateca"
 
-#: src/Form/ConfigForm.php:60
-msgid "DEMO: number (px)"
-msgstr "DEMO: número (px)"
+#: view/global-landing-page/site/explore.phtml:14 view/layout/layout.phtml:72
+#: view/omeka/index/index.phtml:17 view/common/header.phtml:43
+#: src/View/Helper/LandingPageConfig.php:23
+msgid "Repositorio de medios audiovisuales educativos."
+msgstr "Repositorio de medios audiovisuales educativos."
 
-#: src/Form/ConfigForm.php:61
-msgid "Demo field to test numeric input."
-msgstr "Campo de demostración para probar entrada numérica."
+#: view/global-landing-page/site/explore.phtml:15
+#: view/omeka/index/index.phtml:18
+msgid "Browse Collections"
+msgstr "Explorar colecciones"
 
-#: src/Form/ConfigForm.php:75
-msgid "DEMO: select"
-msgstr "DEMO: selección"
+#: view/global-landing-page/site/explore.phtml:33 view/layout/layout.phtml:109
+#: view/common/header.phtml:34 src/View/Helper/LandingPageConfig.php:75
+msgid "Explorar Canales"
+msgstr "Explorar Canales"
 
-#: src/Form/ConfigForm.php:76
-msgid "Demo field to test dropdown selection."
-msgstr "Campo de demostración para probar selección desplegable."
+#: view/global-landing-page/site/explore.phtml:40
+msgid "Search sites by name"
+msgstr "Buscar sitios por nombre"
 
-#: src/Form/ConfigForm.php:78
-msgid "Option A"
-msgstr "Opción A"
+#: view/global-landing-page/site/explore.phtml:47
+msgid "Search sites..."
+msgstr "Buscar sitios..."
+
+#: view/global-landing-page/site/explore.phtml:51
+#: view/common/cross-site-search/fulltext-form.phtml:6
+#: view/common/cross-site-search/fulltext-form.phtml:7
+msgid "Search"
+msgstr "Buscar"
+
+#: view/global-landing-page/site/explore.phtml:58
+#, php-format
+msgid "Search results for: \"%s\""
+msgstr "Resultados de búsqueda para: \"%s\""
+
+#: view/global-landing-page/site/explore.phtml:62
+msgid "Clear search"
+msgstr "Limpiar búsqueda"
+
+#: view/global-landing-page/site/explore.phtml:114
+msgid "No sites found matching your search."
+msgstr "No se encontraron sitios que coincidan con tu búsqueda."
+
+#: view/global-landing-page/site/explore.phtml:115
+msgid "No sites available yet."
+msgstr "Aún no hay sitios disponibles."
+
+#: view/layout/layout.phtml:17 view/common/header.phtml:42
+msgid "Global Landing Page"
+msgstr "Página de inicio global"
+
+#: view/layout/layout.phtml:104 view/common/header.phtml:29
+#: src/View/Helper/LandingPageConfig.php:70
+msgid "Inicio"
+msgstr "Inicio"
+
+#: view/layout/layout.phtml:176 view/common/header.phtml:101
+msgid "Close menu"
+msgstr "Cerrar menú"
+
+#: view/omeka/index/index.phtml:41
+msgid "Canales de &aacute;reas, proyectos y redes"
+msgstr "Canales de áreas, proyectos y redes"
+
+#: view/omeka/index/index.phtml:86
+msgid "No featured sites available yet."
+msgstr "Aún no hay sitios destacados disponibles."
+
+#: view/omeka/index/index.phtml:93
+msgid "Entradas recientes"
+msgstr "Entradas recientes"
+
+#: view/omeka/index/index.phtml:158
+msgid "No items available yet."
+msgstr "Aún no hay elementos disponibles."
+
+#: view/common/user-account-icon.phtml:20
+msgid "Admin Panel"
+msgstr "Panel de administración"
+
+#: view/common/user-account-icon.phtml:25
+msgid "Logout"
+msgstr "Cerrar sesión"
+
+#: view/common/user-account-icon.phtml:44
+#: view/common/user-account-icon.phtml:48
+msgid "Login"
+msgstr "Acceder"
+
+#: view/common/cross-site-search/item-results.phtml:38
+#, php-format
+msgid "Item results for \"%s\""
+msgstr "Resultados de elementos para \"%s\""
+
+#: view/common/cross-site-search/item-results.phtml:116
+msgid "No items found."
+msgstr "No se encontraron elementos."
+
+#: view/common/cross-site-search/results.phtml:38
+#, php-format
+msgid "Search results for \"%s\""
+msgstr "Resultados de búsqueda para \"%s\""
+
+#: view/common/cross-site-search/results.phtml:42
+msgid "Search results"
+msgstr "Resultados de búsqueda"
+
+#: view/common/cross-site-search/results.phtml:48
+msgid "Items"
+msgstr "Elementos"
+
+#: view/common/cross-site-search/results.phtml:122
+#, php-format
+msgid "View all item results (%s total)"
+msgstr "Ver todos los resultados (%s en total)"
+
+#: view/common/cross-site-search/results.phtml:137
+msgid "No results found."
+msgstr "No se encontraron resultados."
+
+#: view/common/header.phtml:102
+msgid "Back"
+msgstr "Volver"
+
+#: view/common/header.phtml:153
+msgid "Primary navigation"
+msgstr "Navegación principal"
+
+#: view/common/header.phtml:163
+msgid "Toggle navigation"
+msgstr "Alternar navegación"
+
+#: Module.php:315
+msgid "Unable to save settings: submitted data is invalid."
+msgstr "No se pudieron guardar los ajustes: los datos enviados no son válidos."
+
+#: Module.php:394
+msgid "Global landing page settings saved."
+msgstr "Ajustes de la página de inicio global guardados."
+
+#: view/layout/layout.phtml:189
+msgid "Global landing page footer"
+msgstr "Pie de página de inicio global"
+
+#: src/Form/ConfigForm.php:54
+msgid "Use custom landing page"
+msgstr "Usar página de inicio personalizada"
+
+#: src/Form/ConfigForm.php:68
+msgid "Featured sites"
+msgstr "Sitios destacados"
+
+#: src/Form/ConfigForm.php:69
+msgid "Select the sites displayed in the featured section."
+msgstr "Selecciona los sitios que se mostrarán en la sección destacada."
 
 #: src/Form/ConfigForm.php:79
-msgid "Option B"
-msgstr "Opción B"
+msgid "Select one or more sites..."
+msgstr "Selecciona uno o más sitios..."
 
-#: src/Form/ConfigForm.php:80
-msgid "Option C"
-msgstr "Opción C"
+#: src/Form/ConfigForm.php:88
+msgid "Base site for navigation"
+msgstr "Sitio base para la navegación"
+
+#: src/Form/ConfigForm.php:89
+msgid ""
+"Choose the site that will provide the pages for the global header navigation."
+msgstr "Elige el sitio que proporcionará las páginas para la navegación global de la cabecera."
 
 #: src/Form/ConfigForm.php:90
-msgid "DEMO: color"
-msgstr "DEMO: color"
+msgid "Select a site"
+msgstr "Selecciona un sitio"
 
-#: src/Form/ConfigForm.php:91
-msgid "Demo field to test color picker."
-msgstr "Campo de demostración para probar el selector de color."
+#: src/Form/ConfigForm.php:104
+msgid "Navigation pages"
+msgstr "Páginas de navegación"
 
-#: src/Form/ConfigForm.php:100
-msgid "DEMO: email address"
-msgstr "DEMO: correo electrónico"
+#: src/Form/ConfigForm.php:106
+msgid "appear in the global header navigation."
+msgstr "aparecen en la navegación global de la cabecera."
 
-#: src/Form/ConfigForm.php:101
-msgid "Demo field to test email input."
-msgstr "Campo de demostración para probar entrada de correo electrónico."
+#: src/Form/ConfigForm.php:116
+msgid "Select pages"
+msgstr "Seleccionar páginas"
 
-#: src/Form/ConfigForm.php:110
-msgid "DEMO: URL"
-msgstr "DEMO: URL"
+#: src/Form/ConfigForm.php:124
+msgid "Footer Copyright HTML"
+msgstr "HTML de copyright del pie de página"
 
-#: src/Form/ConfigForm.php:111
-msgid "Demo field to test URL input."
-msgstr "Campo de demostración para probar entrada de URL."
+#: src/Form/ConfigForm.php:125
+msgid "Custom HTML to render inside the footer."
+msgstr "HTML personalizado para mostrar en el pie de página."
+
+#: src/Form/ConfigForm.php:138
+msgid "Display top bar"
+msgstr "Mostrar barra superior"
+
+#: src/Form/ConfigForm.php:139
+msgid "Toggle the top bar shown above the header on the global landing page."
+msgstr "Activa o desactiva la barra superior que se muestra encima de la cabecera en la página de inicio global."
+
+#: src/Form/ConfigForm.php:153
+msgid "Top bar logo"
+msgstr "Logo de la barra superior"
+
+#: src/Form/ConfigForm.php:154
+msgid "Optional asset displayed inside the top bar. Leave blank to omit."
+msgstr "Recurso opcional que se muestra en la barra superior. Déjalo en blanco para omitirlo."
+
+#: src/Form/ConfigForm.php:174
+msgid "Header logo"
+msgstr "Logo de cabecera"
+
+#: src/Form/ConfigForm.php:175
+#, php-format
+msgid "Header logo %d"
+msgstr "Logo de cabecera %d"
+
+#: src/Form/ConfigForm.php:177
+msgid "Choose an asset to display in the global header."
+msgstr "Elige un recurso para mostrar en la cabecera global."
+
+#: src/Form/ConfigForm.php:178
+msgid "Optional additional logo to display alongside the first one."
+msgstr "Logo adicional opcional para mostrar junto al primero."
+
+#: src/Form/ConfigForm.php:432
+msgid "label"
+msgstr "etiqueta"
+
+#: src/Form/ConfigForm.php:488
+msgid "hex color (e.g. #004488)."
+msgstr "color hexadecimal (ej. #004488)."
+
+#: src/Controller/LandingController.php:35
+msgid "Explore Collections"
+msgstr "Explorar colecciones"

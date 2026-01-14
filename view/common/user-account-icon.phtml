@@ -2,21 +2,51 @@
 /**
  * User Account Icon Template
  *
- * Displays a Material Icons account_circle icon that links to /admin when user is logged in.
- * Displays a Material Icons login icon with text when user is not logged in.
+ * Displays a user bar with account icon, username, and logout button when user is logged in.
  * Can be reused across different parts of the application.
  *
  * @var Laminas\View\Renderer\PhpRenderer $this
  */
 
 // Check if user is logged in using Omeka's identity helper
-$identity = $this->identity();
-$isLoggedIn = $identity !== null;
-?>
+$user = $this->identity();
+$urlHelper = $this->plugin('url');
+$hyperlink = $this->plugin('hyperlink');
 
-<?php if ($isLoggedIn): ?>
-    <a href="/admin" class="user-account-link" title="<?= $this->escapeHtmlAttr($this->translate('Admin Panel')); ?>">
-        <span class="material-symbols-outlined" style="font-size:45px; line-height:2">account_circle</span>
+if ($user):
+    $url = $urlHelper('admin');
+?>
+<div id="user-bar" class="main-header__user-bar">
+    <a href="<?php echo $url; ?>" class="user-account-link" title="<?php echo $this->escapeHtmlAttr($this->translate('Admin Panel')); ?>">
+        <span class="material-symbols-outlined" style="font-size:35px;">account_circle</span>
     </a>
+    <div class="user-bar__info">
+        <span class="user-bar__name"><?php echo $hyperlink($user->getName(), $url); ?></span>
+        <a href="<?php echo $this->url('logout', [], true); ?>" class="button user-bar__logout" id="logout-button"><?php echo $this->translate('Logout'); ?></a>
+        <script>
+        document.getElementById('logout-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            var logoutUrl = this.href;
+            fetch(logoutUrl, {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then(function(response) {
+                window.location.reload();
+            }).catch(function() {
+                window.location.href = logoutUrl;
+            });
+        });
+        </script>
+    </div>
+</div>
+<?php else: ?>
+<div id="user-bar" class="main-header__user-bar">
+    <a href="<?php echo $this->url('login'); ?>" class="user-account-link" title="<?php echo $this->escapeHtmlAttr($this->translate('Login')); ?>">
+        <span class="material-symbols-outlined" style="font-size:35px;">login</span>
+    </a>
+    <div class="user-bar__info">
+        <a href="<?php echo $this->url('login'); ?>" class="button user-bar__logout"><?php echo $this->translate('Login'); ?></a>
+    </div>
+</div>
 <?php endif; ?>
 
