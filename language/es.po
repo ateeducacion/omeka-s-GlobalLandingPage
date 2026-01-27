@@ -110,7 +110,7 @@ msgstr "Entradas recientes"
 
 #: view/omeka/index/index.phtml:158
 msgid "No items available yet."
-msgstr "Aún no hay elementos disponibles."
+msgstr "Aún no hay fichas disponibles."
 
 #: view/common/user-account-icon.phtml:20
 msgid "Admin Panel"
@@ -128,11 +128,11 @@ msgstr "Acceder"
 #: view/common/cross-site-search/item-results.phtml:38
 #, php-format
 msgid "Item results for \"%s\""
-msgstr "Resultados de elementos para \"%s\""
+msgstr "Resultados de fichas para \"%s\""
 
 #: view/common/cross-site-search/item-results.phtml:116
 msgid "No items found."
-msgstr "No se encontraron elementos."
+msgstr "No se encontraron fichas."
 
 #: view/common/cross-site-search/results.phtml:38
 #, php-format
@@ -145,7 +145,7 @@ msgstr "Resultados de búsqueda"
 
 #: view/common/cross-site-search/results.phtml:48
 msgid "Items"
-msgstr "Elementos"
+msgstr "Fichas"
 
 #: view/common/cross-site-search/results.phtml:122
 #, php-format
