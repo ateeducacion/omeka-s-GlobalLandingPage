@@ -1,5 +1,10 @@
 # GlobalLandingPage (Omeka S Module)
 
+<a href="https://ateeducacion.github.io/omeka-s-playground/?blueprint=https%3A%2F%2Fraw.githubusercontent.com%2Fateeducacion%2Fomeka-s-GlobalLandingPage%2Frefs%2Fheads%2Fmain%2Fblueprint.json">
+  <img src="https://raw.githubusercontent.com/ateeducacion/omeka-s-playground/main/ogimage.png" alt="Try GlobalLandingPage in your browser" width="220">
+</a><br>
+<small><a href="https://ateeducacion.github.io/omeka-s-playground/?blueprint=https%3A%2F%2Fraw.githubusercontent.com%2Fateeducacion%2Fomeka-s-GlobalLandingPage%2Frefs%2Fheads%2Fmain%2Fblueprint.json">Try in your browser</a></small>
+
 GlobalLandingPage gives Omeka S installations a polished, self-contained landing experience. When enabled, the module intercepts the global index route (`/`), renders its own controller, layout, view templates, and static assets, and provides a curated front door for your collections—no public site or theme dependency required.
 
 Use this module when you need:
