@@ -38,7 +38,8 @@
                 height: 100%;
             }
             &__thumbnail {
-                width: 35%;
+                width: 30%;
+                min-width: 30%;
                 height: 110px;
                 margin-left: 8px;
                 img {
@@ -58,6 +59,7 @@
     .resource {
         background-color: $color__white;
         border: 1px solid $color__hr;
+        border-radius: 5px;
         box-shadow: 0px 1px 6px rgba($color__black, 0.25);
         margin-bottom: 20px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -111,17 +113,17 @@
             }
             
             &--placeholder {
-                background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+                background: linear-gradient(90deg, #fbfbfb 0%, #f2f2f2 100%);
             }
         }
         
         &__thumbnail-icon {
             font-size: 3rem;
-            opacity: 0.3;
         }
 
         &__content {
-            padding: 15px;
+            padding: 10px;
+            max-width: 65%;
         }
         
         &__title {

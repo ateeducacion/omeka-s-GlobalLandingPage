@@ -93,7 +93,15 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
                             </div>
                         <?php else: ?>
                             <div class="resource__thumbnail resource__thumbnail--placeholder">
-                                <span class="resource__thumbnail-icon">🏛️</span>
+                                <span class="resource__thumbnail-icon">
+                                      <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="4" y="8" width="40" height="26" rx="4" fill="white" stroke="#888" stroke-width="1.5"/>
+                                        <rect x="4" y="8" width="40" height="26" rx="4" fill="#4a90d9" fill-opacity="0.08"/>
+                                        <polygon points="18,15 18,29 32,22" fill="#4a90d9" opacity="0.85"/>
+                                        <rect x="18" y="36" width="12" height="4" rx="1" fill="#bbb"/>
+                                        <line x1="12" y1="40" x2="36" y2="40" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
                             </div>
                         <?php endif; ?>
                         <div class="resource__content">
