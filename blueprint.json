@@ -1,5 +1,14 @@
 {
   "$schema": "https://ateeducacion.github.io/omeka-s-playground/assets/blueprints/blueprint-schema.json",
+  "meta": {
+    "title": "GlobalLandingPage Playground",
+    "author": "ateeducacion",
+    "description": "Instalación de prueba para Omeka S Playground con el módulo activado, varios perfiles de usuario y recursos de ejemplo para configurar y probar GlobalLandingPage con rapidez."
+  },
+  "preferredVersions": {
+    "php": "8.3",
+    "omeka": "4.2.0"
+  },
   "debug": {
     "enabled": true
   },
@@ -9,13 +18,42 @@
     "locale": "es",
     "timezone": "Atlantic/Canary"
   },
+  "login": {
+    "email": "admin@example.com",
+    "password": "password"
+  },
   "users": [
     {
       "username": "admin",
       "email": "admin@example.com",
       "password": "password",
-      "role": "global_admin"
+      "role": "global_admin",
+      "isActive": true
+    },
+    {
+      "username": "editor",
+      "email": "editor@example.com",
+      "password": "1234",
+      "role": "editor",
+      "isActive": true
+    },
+    {
+      "username": "siteadmin",
+      "email": "siteadmin@example.com",
+      "password": "1234",
+      "role": "site_admin",
+      "isActive": true
+    },
+    {
+      "username": "reviewer",
+      "email": "reviewer@example.com",
+      "password": "1234",
+      "role": "reviewer",
+      "isActive": true
     }
+  ],
+  "themes": [
+    "default"
   ],
   "modules": [
     {
@@ -27,11 +65,71 @@
       }
     }
   ],
+  "itemSets": [
+    {
+      "title": "Colección de prueba GlobalLandingPage",
+      "description": "Recursos de ejemplo para poblar el playground y disponer de contenidos con los que probar el módulo."
+    },
+    {
+      "title": "Recursos multimedia",
+      "description": "Imágenes y audio de ejemplo reutilizados desde omeka-s-playground."
+    }
+  ],
+  "items": [
+    {
+      "title": "Portada de ejemplo",
+      "description": "Imagen de dominio público útil para probar la presencia de recursos destacados en el entorno de pruebas.",
+      "creator": "Hieronymus Bosch",
+      "itemSets": [
+        "Colección de prueba GlobalLandingPage",
+        "Recursos multimedia"
+      ],
+      "media": [
+        {
+          "type": "url",
+          "url": "https://raw.githubusercontent.com/ateeducacion/omeka-s-playground/main/assets/samples/garden-of-earthly-delights.png",
+          "title": "The Garden of Earthly Delights"
+        }
+      ]
+    },
+    {
+      "title": "Retrato de ejemplo",
+      "description": "Recurso visual adicional para revisar listados, miniaturas y colecciones dentro del playground.",
+      "creator": "George Frederic Watts",
+      "itemSets": [
+        "Colección de prueba GlobalLandingPage",
+        "Recursos multimedia"
+      ],
+      "media": [
+        {
+          "type": "url",
+          "url": "https://raw.githubusercontent.com/ateeducacion/omeka-s-playground/main/assets/samples/thomas-carlyle-oil-painting-1868.jpg",
+          "title": "Thomas Carlyle Oil Painting 1868"
+        }
+      ]
+    },
+    {
+      "title": "Audio de ejemplo",
+      "description": "Muestra sonora para comprobar que el playground arranca con contenidos de distintos tipos listos para usar.",
+      "creator": "Ludwig van Beethoven",
+      "itemSets": [
+        "Colección de prueba GlobalLandingPage",
+        "Recursos multimedia"
+      ],
+      "media": [
+        {
+          "type": "url",
+          "url": "https://raw.githubusercontent.com/ateeducacion/omeka-s-playground/main/assets/samples/beethoven-public-domain.ogg",
+          "title": "Public domain Beethoven recording"
+        }
+      ]
+    }
+  ],
   "site": {
     "title": "GlobalLandingPage Demo",
     "slug": "demo",
     "theme": "default",
-    "summary": "Instalacion minima para probar el modulo GlobalLandingPage en Omeka S Playground.",
+    "summary": "Instalación de prueba para GlobalLandingPage en Omeka S Playground con usuarios adicionales y recursos de ejemplo listos para configurar el módulo desde el panel de administración.",
     "isPublic": true,
     "setAsDefault": true
   }
