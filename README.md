@@ -53,4 +53,16 @@ This repository includes optional helpers for Docker-based development, Composer
 - `make test` – Run the PHPUnit suite in `test/`.
 - `make package VERSION=x.y.z` – Build a distributable ZIP while preserving the original version in `config/module.ini`.
 
+## Playground blueprint
+The repository-level [`blueprint.json`](blueprint.json) is prepared for [`omeka-s-playground`](https://github.com/ateeducacion/omeka-s-playground) and now mirrors the most useful parts of the local Docker setup:
+
+- It logs in with `admin@example.com` / `password`.
+- It pre-creates extra users for permission testing:
+  - `editor@example.com` / `1234`
+  - `siteadmin@example.com` / `1234`
+  - `reviewer@example.com` / `1234`
+- It seeds a demo site, two item sets, and several sample media resources reused from the playground sample assets.
+
+Because the module intentionally installs with the landing-page override disabled, the playground blueprint leaves you on `/admin` so you can go straight to **Modules → GlobalLandingPage → Configure**, enable the custom landing page, and pick the seeded site/resources as needed.
+
 Feel free to adapt or remove the development tooling to match your workflow.
