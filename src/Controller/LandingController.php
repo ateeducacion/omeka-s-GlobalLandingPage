@@ -21,17 +21,25 @@ class LandingController extends AbstractActionController
 
         $recentItems = [];
         if (!empty($featuredSites)) {
-            try {
-                $response = $this->api()->search('items', [
-                    'sort_by' => 'created',
-                    'sort_order' => 'desc',
-                    'limit' => 8,
-                    'site_id' => $featuredSites,
-                ]);
-                $recentItems = $response->getContent();
-            } catch (\Exception $exception) {
-                $recentItems = [];
+            $collected = [];
+            foreach ($featuredSites as $siteId) {
+                try {
+                    $response = $this->api()->search('items', [
+                        'sort_by' => 'created',
+                        'sort_order' => 'desc',
+                        'limit' => 8,
+                        'site_id' => $siteId,
+                    ]);
+                    foreach ($response->getContent() as $item) {
+                        $collected[$item->id()] = $item;
+                    }
+                } catch (\Exception $exception) {
+                    // skip unavailable site
+                }
             }
+            // Sort merged results by created date descending and take top 8
+            usort($collected, fn($a, $b) => $b->created() <=> $a->created());
+            $recentItems = array_slice(array_values($collected), 0, 8);
         }
 
 

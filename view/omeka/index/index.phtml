@@ -28,9 +28,9 @@ if ($layout) {
     $layout->setVariable('activeNav', 'home');
 }
 
-// Load Masonry and imagesLoaded libraries via CDN
-$this->headScript()->appendFile('https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
-$this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js');
+// Load Masonry and imagesLoaded libraries from vendor assets
+$this->headScript()->appendFile($this->assetUrl('vendor/masonry/masonry.pkgd.min.js', 'GlobalLandingPage'));
+$this->headScript()->appendFile($this->assetUrl('vendor/imagesloaded/imagesloaded.pkgd.min.js', 'GlobalLandingPage'));
 // Load custom Masonry initialization script
 $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
 ?>
@@ -67,7 +67,9 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
                             </div>
                         <?php else: ?>
                             <div class="resource__thumbnail resource__thumbnail--placeholder">
-                                <span class="resource__thumbnail-icon">🏛️</span>
+                                <span class="resource__thumbnail-icon">
+                                    <img src="<?= $this->assetUrl('img/cassete.svg', 'GlobalLandingPage'); ?>" alt="" width="40" height="40">
+                                </span>
                             </div>
                         <?php endif; ?>
                         <div class="resource__content">
@@ -111,7 +113,7 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
                 $resourceClassLabel = $resourceClass ? $resourceClass->label() : null;
                 
                 // Get item's associated sites and build proper URL
-                $itemUrl = '#';
+                $itemUrl = null;
                 try {
                     $itemSites = $item->sites();
                     if (!empty($itemSites)) {
@@ -119,13 +121,13 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
                         $firstSite = reset($itemSites);
                         $siteSlug = method_exists($firstSite, 'slug') ? $firstSite->slug() : null;
                         if ($siteSlug) {
-                            $itemUrl=$item->siteUrl($siteSlug);
+                            $itemUrl = $item->siteUrl($siteSlug);
                         }
                     }
                 } catch (\Exception $e) {
-                    // If unable to get sites, fallback to default item URL
-                    $itemUrl = $item->url();
+                    // If unable to get sites, skip this item
                 }
+                if (!$itemUrl) continue;
                 ?>
                 <article class="resource">
                     <a href="<?= $this->escapeHtmlAttr($itemUrl); ?>">

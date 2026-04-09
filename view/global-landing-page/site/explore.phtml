@@ -21,9 +21,9 @@ if ($layout) {
     $layout->setVariable('activeNav', 'explore');
 }
 
-// Load Masonry and imagesLoaded libraries via CDN
-$this->headScript()->appendFile('https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
-$this->headScript()->appendFile('https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js');
+// Load Masonry and imagesLoaded libraries from vendor assets
+$this->headScript()->appendFile($this->assetUrl('vendor/masonry/masonry.pkgd.min.js', 'GlobalLandingPage'));
+$this->headScript()->appendFile($this->assetUrl('vendor/imagesloaded/imagesloaded.pkgd.min.js', 'GlobalLandingPage'));
 // Load custom Masonry initialization script
 $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLandingPage'));
 ?>
@@ -94,27 +94,7 @@ $this->headScript()->appendFile($this->assetUrl('js/masonry-init.js', 'GlobalLan
                         <?php else: ?>
                             <div class="resource__thumbnail resource__thumbnail--placeholder">
                                 <span class="resource__thumbnail-icon">
-                                    <svg width="40" height="40" viewBox="0 0 48 39" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <!-- REW ◄◄ -->
-                                        <polygon points="8,2 4,5 8,8" fill="#888"/>
-                                        <polygon points="12,2 8,5 12,8" fill="#888"/>
-                                        <!-- STOP ■ -->
-                                        <rect x="16" y="2" width="6" height="6" rx="0.8" fill="#888"/>
-                                        <!-- PLAY ► -->
-                                        <polygon points="26,2 26,8 32,5" fill="#4a90d9"/>
-                                        <!-- FF ►► -->
-                                        <polygon points="36,2 36,8 40,5" fill="#888"/>
-                                        <polygon points="40,2 40,8 44,5" fill="#888"/>
-                                        <!-- cuerpo cassette -->
-                                        <rect x="4" y="14" width="40" height="23" rx="4" fill="white" stroke="#888" stroke-width="1.5"/>
-                                        <!-- bobinas -->
-                                        <circle cx="14" cy="25" r="5" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
-                                        <circle cx="34" cy="25" r="5" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
-                                        <line x1="19" y1="25" x2="29" y2="25" stroke="#4a90d9" stroke-width="1.5"/>
-                                        <circle cx="14" cy="25" r="1.8" fill="#4a90d9"/>
-                                        <circle cx="34" cy="25" r="1.8" fill="#4a90d9"/>
-                                    </svg>
-                                    
+                                    <img src="<?= $this->assetUrl('img/cassete.svg', 'GlobalLandingPage'); ?>" alt="" width="40" height="40">
                                 </span>
                             </div>
                         <?php endif; ?>
