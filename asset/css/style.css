@@ -3556,6 +3556,9 @@ body.menu-drawer-toggled {
   object-fit: cover;
   width: 100%;
 }
+.resource-grid .resource__thumbnail .resource__thumbnail-icon img {
+  height: auto;
+}
 .resource-grid .resource__thumbnail--placeholder {
   background: linear-gradient(90deg, #fbfbfb 0%, #f2f2f2 100%);
 }
