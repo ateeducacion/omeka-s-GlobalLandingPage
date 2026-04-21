@@ -23,6 +23,10 @@ class LandingController extends AbstractActionController
         if (!empty($featuredSites)) {
             $collected = [];
             foreach ($featuredSites as $siteId) {
+                $siteId = (int) $siteId;
+                if ($siteId <= 0) {
+                    continue;
+                }
                 try {
                     $response = $this->api()->search('items', [
                         'sort_by' => 'created',
@@ -34,7 +38,23 @@ class LandingController extends AbstractActionController
                         $collected[$item->id()] = $item;
                     }
                 } catch (\Exception $exception) {
-                    // skip unavailable site
+                    error_log('[GlobalLandingPage] site_id=' . $siteId . ' failed: ' . $exception->getMessage());
+                }
+            }
+            // Fallback for Omeka versions where site_id pool query yields nothing
+            if (empty($collected)) {
+                try {
+                    $response = $this->api()->search('items', [
+                        'sort_by' => 'created',
+                        'sort_order' => 'desc',
+                        'limit' => 8,
+                        'in_sites' => true,
+                    ]);
+                    foreach ($response->getContent() as $item) {
+                        $collected[$item->id()] = $item;
+                    }
+                } catch (\Exception $exception) {
+                    error_log('[GlobalLandingPage] in_sites fallback failed: ' . $exception->getMessage());
                 }
             }
             // Sort merged results by created date descending and take top 8
