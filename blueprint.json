@@ -12,7 +12,7 @@
   "debug": {
     "enabled": true
   },
-  "landingPage": "/admin",
+  "landingPage": "/",
   "siteOptions": {
     "title": "GlobalLandingPage Playground",
     "locale": "es",
@@ -61,7 +61,7 @@
       "state": "activate",
       "source": {
         "type": "url",
-        "url": "https://github.com/ateeducacion/omeka-s-GlobalLandingPage/archive/refs/heads/main.zip"
+        "url": "https://github.com/ateeducacion/omeka-s-GlobalLandingPage/archive/refs/heads/fix/recent-items-not-shown.zip"
       }
     }
   ],
