@@ -22,10 +22,13 @@ class LandingPageConfig extends AbstractHelper
         $headline = $translate('Servicio Mediateca');
         $lead = $translate('Repositorio de medios audiovisuales educativos.');
 
+        $featuredSites = $this->resolveFeaturedSites();
+
         $this->config = [
             'headline' => $headline,
             'lead' => $lead,
-            'featuredSites' => $this->resolveFeaturedSites(),
+            'featuredSites' => $featuredSites,
+            'recentItems' => $this->resolveRecentItems($featuredSites),
             'navItems' => $this->buildNavigation(),
             'sitesLogos' => $this->resolveSiteLogos($headline),
             'topBar' => $this->resolveTopBarConfig($headline),
@@ -58,6 +61,54 @@ class LandingPageConfig extends AbstractHelper
         }
 
         return $sites;
+    }
+
+    private function resolveRecentItems(array $featuredSites): array
+    {
+        $view = $this->getView();
+        $api = $view->api();
+        $collected = [];
+
+        foreach ($featuredSites as $site) {
+            $siteId = (int) $site->id();
+            if ($siteId <= 0) {
+                continue;
+            }
+            try {
+                $response = $api->search('items', [
+                    'sort_by' => 'created',
+                    'sort_order' => 'desc',
+                    'limit' => 8,
+                    'site_id' => $siteId,
+                ]);
+                foreach ($response->getContent() as $item) {
+                    $collected[$item->id()] = $item;
+                }
+            } catch (\Throwable $exception) {
+                error_log('[GlobalLandingPage] site_id=' . $siteId . ' failed: ' . $exception->getMessage());
+            }
+        }
+
+        // Fallback for Omeka versions where site_id pool query yields nothing
+        if (empty($collected)) {
+            try {
+                $response = $api->search('items', [
+                    'sort_by' => 'created',
+                    'sort_order' => 'desc',
+                    'limit' => 8,
+                    'in_sites' => true,
+                ]);
+                foreach ($response->getContent() as $item) {
+                    $collected[$item->id()] = $item;
+                }
+            } catch (\Throwable $exception) {
+                error_log('[GlobalLandingPage] in_sites fallback failed: ' . $exception->getMessage());
+            }
+        }
+
+        usort($collected, fn($a, $b) => $b->created() <=> $a->created());
+
+        return array_slice(array_values($collected), 0, 8);
     }
 
     private function buildNavigation(): array

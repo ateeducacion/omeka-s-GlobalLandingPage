@@ -22,6 +22,9 @@ $heroImage = $this->heroImage ?? null;
 $featuredSites = isset($landingConfig['featuredSites']) && is_array($landingConfig['featuredSites'])
     ? $landingConfig['featuredSites']
     : [];
+$recentItems = isset($landingConfig['recentItems']) && is_array($landingConfig['recentItems'])
+    ? $landingConfig['recentItems']
+    : [];
 
 $layout = $this->layout();
 if ($layout) {

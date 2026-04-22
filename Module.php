@@ -171,7 +171,8 @@ class Module extends AbstractModule
                 $normalizedController = ltrim($controllerParam, '\\');
 
                 $isDefaultController = $normalizedController === 'Omeka\Controller\Index'
-                    || $normalizedController === 'Omeka\Controller\IndexController';
+                    || $normalizedController === 'Omeka\Controller\IndexController'
+                    || $normalizedController === 'index';
 
                 if (!$isDefaultController || $actionParam !== 'index') {
                     return;
