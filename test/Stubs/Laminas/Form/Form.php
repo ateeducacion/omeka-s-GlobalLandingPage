@@ -60,4 +60,46 @@ class Form
 
         return $this->elements[$name];
     }
+    private $options = [];
+    private $data = [];
+    private $inputFilter;
+    public static $valid = true;
+
+    public function setOption($name, $value)
+    {
+        $this->options[$name] = $value;
+    }
+    public function getOption($name)
+    {
+        return $this->options[$name] ?? null;
+    }
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+    public function getData($flags = null)
+    {
+        return $this->data;
+    }
+    public function isValid()
+    {
+        return self::$valid;
+    }
+    public function setInputFilter($inputFilter)
+    {
+        $this->inputFilter = $inputFilter;
+    }
+    public function getInputFilter()
+    {
+        return $this->inputFilter;
+    }
+    public function setName($name)
+    {
+        $this->options['name'] = $name;
+    }
+    public function setAttribute($name, $value)
+    {
+        $this->options[$name] = $value;
+    }
 }

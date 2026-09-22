@@ -5,3 +5,6 @@
 themes/
 vendor/
 !/asset/vendor/
+/coverage.xml
+/.phpunit.cache/
+/.phpunit.result.cache
