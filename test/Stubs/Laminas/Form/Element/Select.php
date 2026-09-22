@@ -59,4 +59,12 @@ class Select
     {
         return $this->valueOptions;
     }
+    public function setAttribute($name, $value)
+    {
+        $this->attributes[$name] = $value;
+    }
+    public function getAttribute($name)
+    {
+        return $this->attributes[$name] ?? null;
+    }
 }

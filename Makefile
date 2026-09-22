@@ -255,3 +255,9 @@ import-sample:
 enable-module:
 	@echo "Enabling GlobalLandingPage module inside Omeka S..."
 	docker compose exec omekas sh -lc 'omeka-s-cli module:install GlobalLandingPage || true'
+
+.PHONY: test-coverage
+test-coverage:
+	@rm -f coverage.xml
+	php -d pcov.directory=. -d pcov.exclude='~/(vendor|test)/~' vendor/bin/phpunit -c test/phpunit.xml --coverage-clover coverage.xml
+	php test/check-coverage.php coverage.xml 90

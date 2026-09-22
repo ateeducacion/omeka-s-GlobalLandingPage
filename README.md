@@ -1,5 +1,7 @@
 # GlobalLandingPage (Omeka S Module)
 
+[![codecov](https://codecov.io/gh/ateeducacion/omeka-s-GlobalLandingPage/branch/main/graph/badge.svg)](https://codecov.io/gh/ateeducacion/omeka-s-GlobalLandingPage)
+
 <a href="https://ateeducacion.github.io/omeka-s-playground/?blueprint=https%3A%2F%2Fraw.githubusercontent.com%2Fateeducacion%2Fomeka-s-GlobalLandingPage%2Frefs%2Fheads%2Fmain%2Fblueprint.json">
   <img src="https://raw.githubusercontent.com/ateeducacion/omeka-s-GlobalLandingPage/refs/heads/main/.github/assets/playground-preview-button.svg" alt="Try GlobalLandingPage in your browser" width="224">
 </a><br>
@@ -66,3 +68,9 @@ The repository-level [`blueprint.json`](blueprint.json) is prepared for [`omeka-
 Because the module intentionally installs with the landing-page override disabled, the playground blueprint leaves you on `/admin` so you can go straight to **Modules → GlobalLandingPage → Configure**, enable the custom landing page, and pick the seeded site/resources as needed.
 
 Feel free to adapt or remove the development tooling to match your workflow.
+
+## Test coverage
+
+After `composer install`, run `make test-coverage` with PCOV enabled (or `XDEBUG_MODE=coverage make test-coverage` with Xdebug). This writes `coverage.xml` and fails below 90% line coverage across `Module.php` and all PHP code in `src/`. CI uploads the report to Codecov using GitHub OIDC; no upload token is required. Both Codecov project and patch coverage targets are 90%.
+
+The PHPUnit suite tests routing, configuration normalization, controller responses and helper output using the existing lightweight framework doubles. It does not boot a full Omeka installation or execute browser tests.
