@@ -1,5 +1,5 @@
 {
-  "$schema": "https://ateeducacion.github.io/omeka-s-playground/assets/blueprints/blueprint-schema.json",
+  "$schema": "https://omeka-s-contrib.github.io/omeka-s-blueprints/schema/v0/blueprint-schema.json",
   "meta": {
     "title": "GlobalLandingPage Playground",
     "author": "ateeducacion",
@@ -9,18 +9,15 @@
     "php": "8.3",
     "omeka": "4.2.0"
   },
-  "debug": {
-    "enabled": true
-  },
-  "landingPage": "/",
-  "siteOptions": {
+  "install": {
     "title": "GlobalLandingPage Playground",
     "locale": "es",
-    "timezone": "Atlantic/Canary"
-  },
-  "login": {
-    "email": "admin@example.com",
-    "password": "password"
+    "timezone": "Atlantic/Canary",
+    "admin": {
+      "name": "admin",
+      "email": "admin@example.com",
+      "password": "password"
+    }
   },
   "users": [
     {
@@ -59,10 +56,7 @@
     {
       "name": "GlobalLandingPage",
       "state": "activate",
-      "source": {
-        "type": "url",
-        "url": "https://github.com/ateeducacion/omeka-s-GlobalLandingPage/archive/refs/heads/main.zip"
-      }
+      "source": "https://github.com/ateeducacion/omeka-s-GlobalLandingPage/archive/refs/heads/main.zip"
     }
   ],
   "itemSets": [
@@ -125,12 +119,20 @@
       ]
     }
   ],
-  "site": {
-    "title": "GlobalLandingPage Demo",
-    "slug": "demo",
-    "theme": "default",
-    "summary": "Instalación de prueba para GlobalLandingPage en Omeka S Playground con usuarios adicionales y recursos de ejemplo listos para configurar el módulo desde el panel de administración.",
-    "isPublic": true,
-    "setAsDefault": true
+  "sites": [
+    {
+      "title": "GlobalLandingPage Demo",
+      "slug": "demo",
+      "theme": "default",
+      "summary": "Instalación de prueba para GlobalLandingPage en Omeka S Playground con usuarios adicionales y recursos de ejemplo listos para configurar el módulo desde el panel de administración.",
+      "isPublic": true,
+      "setAsDefault": true
+    }
+  ],
+  "x-playground": {
+    "debug": {
+      "enabled": true
+    },
+    "landingPage": "/"
   }
 }
