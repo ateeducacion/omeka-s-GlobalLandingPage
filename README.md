@@ -56,7 +56,7 @@ This repository includes optional helpers for Docker-based development, Composer
 - `make package VERSION=x.y.z` – Build a distributable ZIP while preserving the original version in `config/module.ini`.
 
 ## Playground blueprint
-The repository-level [`blueprint.json`](blueprint.json) is prepared for [`omeka-s-playground`](https://github.com/ateeducacion/omeka-s-playground) and now mirrors the most useful parts of the local Docker setup:
+The repository-level [`blueprint.json`](blueprint.json) is prepared for [`omeka-s-playground`](https://github.com/ateeducacion/omeka-s-playground), and the local Docker stack applies the same file on every start:
 
 - It logs in with `admin@example.com` / `password`.
 - It pre-creates extra users for permission testing:
